@@ -1,0 +1,25 @@
+name: TestSelector
+version: 0.0.1
+cabal-version: >=1.2
+build-type: Simple
+license: AllRightsReserved
+license-file: ""
+description:  
+data-dir: ""
+ 
+executable TestSelector
+    build-depends: QuickCheck -any, base -any, range >=0.1.0.0
+    main-is: Main.hs
+    buildable: True
+    extensions: ScopedTypeVariables BangPatterns TypeSynonymInstances
+                PatternGuards GeneralizedNewtypeDeriving
+    hs-source-dirs: src
+    other-modules: Gradeable DynamicSolving
+ 
+test-suite test-TestSelector
+    build-depends: QuickCheck -any, base -any, range >=0.1.0.0
+    type: exitcode-stdio-1.0
+    main-is: Main.hs
+    buildable: True
+    cpp-options: -DMAIN_FUNCTION=testMain
+    hs-source-dirs: src

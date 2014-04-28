@@ -1,0 +1,10 @@
+Version of workspace file format:
+               1
+Time of storage:
+               "Mon Apr 28 21:56:12 \238rodkowoeuropejski czas letni 2014"
+Name of the workspace:
+               "TestSelector"
+File paths of contained packages:
+               ["TestSelector.cabal"]
+Maybe file path of an active package:
+               Just "TestSelector.cabal"
