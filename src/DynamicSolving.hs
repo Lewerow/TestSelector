@@ -19,8 +19,7 @@ module DynamicSolving (
 import Gradeable
 
 solveDynamically:: Gradeable b => [[a]] -> [(a -> b)]  -> [[a]]
-solveDynamically x f = solveDynamicallyHelper x f [] where
-  solveDynamicallyHelper [] _ r = r
-  solveDynamicallyHelper _ [] _ = undefined
+solveDynamically xs fs = foldr mutator zip(xs, fs) [] where
+  mutator acc (x, f) = f acc x
 
 -- to wszystko to będzie jeden foldr, tylko trzeba wymyślić sensownie jaki
