@@ -25,5 +25,6 @@ import {-@ HTF_TESTS @-} Gradeable
 import DynamicSolving
 import {-@ HTF_TESTS @-}  Clusterization
 import {-@ HTF_TESTS @-}  Structuring
+import {-@ HTF_TESTS @-}  Selection
 
 main = htfMain htf_importedTests
