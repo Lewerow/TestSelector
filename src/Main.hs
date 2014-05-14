@@ -22,7 +22,7 @@ import System.Environment(getArgs)
 import Test.Framework
 import Test.Framework.Tutorial
 import {-@ HTF_TESTS @-} Gradeable
-import {-@ HTF_TESTS @-}  DynamicSolving
+import DynamicSolving
 import {-@ HTF_TESTS @-}  Clusterization
 import {-@ HTF_TESTS @-}  Structuring
 
