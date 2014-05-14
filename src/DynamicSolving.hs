@@ -11,17 +11,19 @@
 -- |
 --
 -----------------------------------------------------------------------------
+{-# OPTIONS_GHC -F -pgmF htfpp #-}
 
 module DynamicSolving (
-
+  htf_thisModulesTests
 ) where
 
-import Gradeable
+import Test.Framework
 
-bestDynamicSolutions xs fs = sort $ solveDynamically xs fs
+--bestDynamicSolutions xs fs = sort $ solveDynamically xs fs
 
-solveDynamically:: Gradeable b => [[a]] -> [(a -> b)]  -> [[a]]
-solveDynamically xs fs = foldr mutator (zip xs fs) [] where
-  mutator acc (x, f) = f acc x
+--solveDynamically:: Gradeables b => [[a]] -> [(a -> b)]  -> [[a]]
+--solveDynamically xs fs = foldr mutator (zip xs fs) [] where
+--  mutator acc (x, f) = f acc x
+
 
 -- to wszystko to będzie jeden foldr, tylko trzeba wymyślić sensownie jaki

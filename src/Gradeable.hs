@@ -1,3 +1,5 @@
+
+
 -----------------------------------------------------------------------------
 --
 -- Module      :  Gradeable
@@ -11,10 +13,14 @@
 -- |
 --
 -----------------------------------------------------------------------------
+{-# OPTIONS_GHC -F -pgmF htfpp #-}
 
 module Gradeable (
-  Gradeable
+  Gradeables,
+  htf_thisModulesTests
 ) where
 
-class Gradeable a where
+import Test.Framework
+
+class Gradeables a where
   grade :: a -> Double
