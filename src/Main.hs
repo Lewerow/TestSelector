@@ -32,5 +32,5 @@ import qualified Data.Set as S
 import Data.Monoid
 
 main = putStrLn . show $ calculate (S.fromList sums) (\x y -> x > y) where -- htfMain htf_importedTests
-  sums = take 25 produce where
+  sums = take 12 produce where
     produce = map Sum [1..]
