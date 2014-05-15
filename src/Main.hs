@@ -26,7 +26,8 @@ import DynamicSolving
 import {-@ HTF_TESTS @-}  Clusterization
 import {-@ HTF_TESTS @-}  Structuring
 import {-@ HTF_TESTS @-}  Selection
---}import Dynamic
+--}
+import Dynamic
 import qualified Data.Set as S
 import Data.Monoid
 
