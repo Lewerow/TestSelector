@@ -31,6 +31,6 @@ import Dynamic
 import qualified Data.Set as S
 import Data.Monoid
 
-main = putStrLn . show $ calculate (S.fromList sums) (\x y -> x < y) where -- htfMain htf_importedTests
-  sums = take 100 produce where
-    produce = map Sum [1..]
+main = putStrLn . show $ calculate (S.fromList sums) (\x y -> head x < head y) where -- htfMain htf_importedTests
+  sums = take 10 produce where
+    produce = map (:[]) [1..]
