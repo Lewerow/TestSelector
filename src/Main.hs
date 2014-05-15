@@ -26,5 +26,10 @@ import DynamicSolving
 import {-@ HTF_TESTS @-}  Clusterization
 import {-@ HTF_TESTS @-}  Structuring
 import {-@ HTF_TESTS @-}  Selection
+import Dynamic
+import qualified Data.Set as S
+import Data.Monoid
 
-main = htfMain htf_importedTests
+main = putStrLn . show $ calculate (S.fromList sums) (\x y -> x > y) where -- htfMain htf_importedTests
+  sums = take 25 produce where
+    produce = map Sum [1..]

@@ -15,8 +15,8 @@ executable TestSelector
     extensions: ScopedTypeVariables BangPatterns TypeSynonymInstances
                 PatternGuards GeneralizedNewtypeDeriving
     hs-source-dirs: src
-    other-modules: Selection Structuring Gradeable DynamicSolving
-                   Clusterization
+    other-modules: Dynamic Selection Structuring Gradeable
+                   DynamicSolving Clusterization
  
 test-suite test-TestSelector
     build-depends: HTF >=0.11.3.0, HUnit >=1.2.5.2,
