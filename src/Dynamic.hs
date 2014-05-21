@@ -24,7 +24,7 @@ import Data.Maybe (fromJust)
 import Data.Monoid
 
 calculate:: Monoid a => Ord a => S.Set a -> (a -> a -> Bool) -> [a]
-calculate set f = sort . map fst $ dynamic matches f (toList matches) [] where
+calculate set f = map fst $ dynamic matches f (toList matches) [] where
   matches = prefilter set f
 
 prefilter:: S.Set a -> (a -> a -> Bool) -> Map a (S.Set a)

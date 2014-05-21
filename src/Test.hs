@@ -13,7 +13,9 @@
 -----------------------------------------------------------------------------
 
 module Test (
-
+  Id, Time, Value,
+  TestData (TD),
+  ids, time, value, ranges, worthMerging, grade
 ) where
 
 import Data.Monoid
@@ -33,19 +35,23 @@ data TestData = TD {ids::[Id],
   value::Value,
   ranges::[Range Int],
   worthMerging::(TestData -> TestData -> Bool),
-  comp::(TestData -> TestData -> Ordering)}
+  grade::(TestData -> Double)}
 
 instance Eq TestData where
   a == b = ids a == ids b
 
 instance Ord TestData where
-  compare a b = (comp a) a b
+  compare a b
+    | null comparisons = EQ
+    | otherwise = head comparisons
+    where
+      comparisons = filter (/=EQ) $ zipWith (compare) (ids a) (ids b)
 
 instance Test TestData where
     coverage = ranges
     isCombinationUseful a b = (worthMerging a) a b
 
 instance Monoid TestData where
-    mempty = TD [] (Sum 0) (Sum 0) [] (\_ _ -> True) (\_ _ -> LT)
+    mempty = TD [] (Sum 0) (Sum 0) [] (\_ _ -> True) (\_ -> 0)
     a `mappend` b = TD (ids a <> ids b) (time a <> time b) (value a <> value b)
-      (ranges a `union` ranges b) (worthMerging a) (comp a)
+      (ranges a `union` ranges b) (worthMerging a) (grade a)

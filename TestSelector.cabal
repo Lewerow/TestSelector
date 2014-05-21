@@ -4,24 +4,24 @@ cabal-version: >=1.2
 build-type: Simple
 license: AllRightsReserved
 license-file: ""
+description:  
 data-dir: ""
  
 executable TestSelector
     build-depends: HTF >=0.11.3.0, HUnit >=1.2.5.2,
                    IntervalMap >=0.3.0.2, QuickCheck -any, base -any,
-                   containers >=0.5.0.0, range >=0.1.0.0
+                   containers >=0.5.0.0, range >=0.1.0.0, split >=0.2.0
     main-is: Main.hs
     buildable: True
     extensions: ScopedTypeVariables BangPatterns TypeSynonymInstances
                 PatternGuards GeneralizedNewtypeDeriving
     hs-source-dirs: src
-    other-modules: Dynamic Selection Structuring Gradeable
-                   DynamicSolving Clusterization
+    other-modules: Test Dynamic
  
 test-suite test-TestSelector
     build-depends: HTF >=0.11.3.0, HUnit >=1.2.5.2,
                    IntervalMap >=0.3.0.2, QuickCheck -any, base -any,
-                   containers >=0.5.0.0, range >=0.1.0.0
+                   containers >=0.5.0.0, range >=0.1.0.0, split >=0.2.0
     type: exitcode-stdio-1.0
     main-is: Main.hs
     buildable: True
