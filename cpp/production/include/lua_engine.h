@@ -20,17 +20,23 @@ namespace lua
 		void load_file(const std::string& filename);
 
 		template <typename T>
-		T get(const std::string& varname)
+		variable<T> get_variable(const std::string& varname)
 		{
-			return variable<T>(varname).get(machine.get()).value();
+			return variable<T>(varname).get_value_from(machine.get());
 		}
 
-/*		template <typename T>
-		T push(const std::string& varname, const T& value)
+		template <typename T>
+		T get(const std::string& varname)
 		{
-			return variable::push<T>(machine.get(), varname, value);
+			return variable<T>(varname).get_value_from(machine.get()).value();
 		}
-		*/
+
+		template <typename T>
+		void push(const variable<T>& var)
+		{
+			return var.insert_into(machine.get());
+		}
+		
 	private:
 		std::unique_ptr<lua_State> machine;
 	};

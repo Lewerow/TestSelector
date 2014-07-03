@@ -9,6 +9,7 @@
 #include <lua.hpp>
 
 #include <ts_assert.h>
+#include <type_specializations.h>
 
 namespace lua
 {
@@ -17,23 +18,29 @@ namespace lua
 	{
 	public:
 
-		variable(const std::string& varname, T val) : name_(varname), value_(val)
+		variable(const std::string& varname, T val) : name_{varname}, value_{val}
 		{}
 
 		variable(const std::string& varname) : name_(varname), value_(boost::none)
 		{}
 
-		variable& get(lua_State* machine)
+		variable& get_value_from(lua_State* machine)
 		{
 			TS_ASSERT(!value_.is_initialized(), "Cannot re-get variable");
 
 			lua_getglobal(machine, name().c_str());
-			if (type<T>(machine, -1))
+			if (type_matches<T>(machine, -1))
 				value_ = take<T>(machine, -1);
 			else
 				throw std::runtime_error("Requested variable with wrong type: " + name());
 
 			return *this;
+		}
+
+		void insert_into(lua_State* machine) const
+		{
+			push(machine, value());
+			lua_setglobal(machine, name().c_str());
 		}
 
 		const T& value() const
@@ -47,20 +54,25 @@ namespace lua
 			return name_;
 		}
 
+		variable(const variable<T>& rhs) : name_(rhs.name()), value_(rhs.value())
+		{}
+
+		variable<T>& operator= (const variable<T>& rhs)
+		{
+			*this = variable<T>(rhs);
+			return *this;
+		}
+
 	private:
 		std::string name_;
 		boost::optional<T> value_;
 	};
-	
-	template <typename T>
-	bool type(lua_State* machine, int position);
-	template<typename T>
-	T take(lua_State* machine, int position);
 
-	template<>
-	bool type<int>(lua_State* machine, int position);
-	template<>
-	int take<int>(lua_State* machine, int position);
+	template <typename T>
+	variable<T> make_variable(const std::string& name, const T& val)
+	{
+		return variable<T>(name, val);
+	}
 }
 
 #endif
