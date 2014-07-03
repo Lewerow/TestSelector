@@ -45,5 +45,17 @@ BOOST_AUTO_TEST_CASE(variable_is_same_after_roudtrip)
 	BOOST_CHECK_EQUAL(var, engine.get_variable<int>("x"));
 }
 
+BOOST_AUTO_TEST_CASE(configuration_file_can_be_read)
+{
+	engine.load_file("../../tests/files/basic_configuration.lua");
+	BOOST_CHECK_EQUAL(engine.get<int>("x"), 5);
+	BOOST_CHECK_EQUAL(engine.get<std::string>("y"), "kot");
+}
+
+BOOST_AUTO_TEST_CASE(invalid_data_throws)
+{
+	BOOST_CHECK_THROW(engine.load("x = 2'sad'"), std::runtime_error);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 BOOST_AUTO_TEST_SUITE_END()
