@@ -8,6 +8,7 @@
 
 #include <lua_state_default_deleter.h>
 #include <variable.h>
+#include <function.h>
 
 namespace lua
 {
@@ -35,6 +36,18 @@ namespace lua
 		void push(const variable<T>& var)
 		{
 			return var.insert_into(machine.get());
+		}
+
+		template <typename T, typename... Args>
+		T call(const std::string& name, Args... args)
+		{
+			return function(name, machine.get()).call<T>(args...);
+		}
+		
+		template <typename T, typename... Args>
+		variable<T> call_variable(const std::string& name, Args... args)
+		{
+			return variable<T>("", call(name, args))
 		}
 		
 	private:

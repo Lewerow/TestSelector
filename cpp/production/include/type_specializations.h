@@ -12,7 +12,15 @@ namespace lua
 	T take(lua_State* machine, int position);
 	template <typename T>
 	void push(lua_State* machine, const T& val);
-	
+
+	void push_all(lua_State* machine);
+
+	template<typename Arg, typename... Args>
+	void push_all(lua_State* machine, Arg arg, Args... args)
+	{
+		push<Arg>(machine, arg);
+		push_all(machine, args...);
+	}
 
 	// int
 	template<>

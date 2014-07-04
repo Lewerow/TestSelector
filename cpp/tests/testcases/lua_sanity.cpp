@@ -57,5 +57,26 @@ BOOST_AUTO_TEST_CASE(invalid_data_throws)
 	BOOST_CHECK_THROW(engine.load("x = 2'sad'"), std::runtime_error);
 }
 
+BOOST_AUTO_TEST_CASE(add_function_can_be_called)
+{
+	engine.load("function add(a,b) return a+b end");
+	auto sum = engine.call<int>("add", 2, 3);
+	BOOST_CHECK_EQUAL(sum, 5);
+}
+
+BOOST_AUTO_TEST_CASE(add_function_can_be_called_with_more_args)
+{
+	engine.load("function add(a,b) return a+b end");
+	auto sum = engine.call<int>("add", 2, 3, 5, 6);
+	BOOST_CHECK_EQUAL(sum, 5);
+}
+
+BOOST_AUTO_TEST_CASE(data_is_convertible_between_types)
+{
+	engine.load("function add(a,b) return a+b end");
+	auto sum = engine.call<std::string>("add", 2, 5);
+	BOOST_CHECK_EQUAL("7", sum);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 BOOST_AUTO_TEST_SUITE_END()

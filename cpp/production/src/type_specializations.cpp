@@ -2,6 +2,9 @@
 
 namespace lua
 {
+	void push_all(lua_State* machine)
+	{}
+
 	template<>
 	bool type_matches<int>(lua_State* machine, int position)
 	{
