@@ -2566,7 +2566,7 @@ PUGI__NS_BEGIN
 
 					if (*s == '<')
 					{
-						// We skipped some whitespace characters because otherwise we would take the tag branch instead of PCDATA one
+						// We skipped some whitespace characters because otherwise we would pop the tag branch instead of PCDATA one
 						assert(mark != s);
 
 						if (!PUGI__OPTSET(parse_ws_pcdata | parse_ws_pcdata_single))
@@ -3585,7 +3585,7 @@ PUGI__NS_BEGIN
 		void* buffer = 0;
 		size_t size = 0;
 
-		// load stream to memory (using seek-based implementation if possible, since it's faster and takes less memory)
+		// load stream to memory (using seek-based implementation if possible, since it's faster and pops less memory)
 		xml_parse_status status = (stream.tellg() < 0) ? load_stream_data_noseek(stream, &buffer, &size) : load_stream_data_seek(stream, &buffer, &size);
 		if (status != status_ok) return make_parse_result(status);
 

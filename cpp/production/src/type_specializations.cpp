@@ -1,20 +1,30 @@
+#include <type_specializations.h>
 #include <variable.h>
 
 namespace lua
 {
 	void push_all(lua_State* machine)
 	{}
-
+}
+/*
+namespace lua
+{
 	template<>
 	bool type_matches<int>(lua_State* machine, int position)
 	{
-		return lua_isnumber(machine, position) == 1;
+		return lua_isnumber(machine, position) == LUA_TRUE;
 	}
 
 	template<>
-	int take<int>(lua_State* machine, int position)
+	int pop<int>(lua_State* machine, int position)
 	{
-		return static_cast<int>(lua_tonumber(machine, position));
+		int has_conversion_succeeded = 0;
+		int result = static_cast<int>(lua_tonumberx(machine, position, &has_conversion_succeeded));
+
+		if (has_conversion_succeeded == LUA_FALSE)
+			throw std::bad_cast();
+
+		return result;
 	}
 
 	template<>
@@ -22,15 +32,18 @@ namespace lua
 	{
 		lua_pushinteger(machine, value);
 	}
+}
 
+namespace lua
+{
 	template<>
 	bool type_matches<std::string>(lua_State* machine, int position)
 	{
-		return lua_isstring(machine, position) == 1;
+		return lua_isstring(machine, position) == LUA_TRUE;
 	}
 
 	template<>
-	std::string take<std::string>(lua_State* machine, int position)
+	std::string pop<std::string>(lua_State* machine, int position)
 	{
 		return std::string(lua_tostring(machine, position));
 	}
@@ -40,4 +53,4 @@ namespace lua
 	{
 		lua_pushstring(machine, value.c_str());
 	}
-}
+}*/

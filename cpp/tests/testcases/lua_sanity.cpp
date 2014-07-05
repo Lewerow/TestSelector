@@ -45,6 +45,18 @@ BOOST_AUTO_TEST_CASE(variable_is_same_after_roudtrip)
 	BOOST_CHECK_EQUAL(var, engine.get_variable<int>("x"));
 }
 
+BOOST_AUTO_TEST_CASE(optional_roundtrip)
+{
+	engine.push(lua::make_variable("x", boost::optional<std::string>()));
+	BOOST_CHECK(!engine.get<boost::optional<int> >("x").is_initialized());
+	BOOST_CHECK(!engine.get<boost::optional<std::string> >("y").is_initialized());
+
+	engine.push(lua::make_variable("y", 5));
+	auto var = engine.get<boost::optional<int> >("y");
+	BOOST_CHECK(var.is_initialized());
+	BOOST_CHECK_EQUAL(var.get(), 5); 
+}
+
 BOOST_AUTO_TEST_CASE(configuration_file_can_be_read)
 {
 	engine.load_file("../../tests/files/basic_configuration.lua");
@@ -76,6 +88,19 @@ BOOST_AUTO_TEST_CASE(data_is_convertible_between_types)
 	engine.load("function add(a,b) return a+b end");
 	auto sum = engine.call<std::string>("add", 2, 5);
 	BOOST_CHECK_EQUAL("7", sum);
+}
+
+BOOST_AUTO_TEST_CASE(order_in_call_is_the_same)
+{
+	engine.load("function add_special(a,b) return 2*a+b end");
+	auto sum = engine.call<std::string>("add_special", 2, 5);
+	BOOST_CHECK_EQUAL("9", sum);
+}
+
+BOOST_AUTO_TEST_CASE(throws_on_non_existing_function_call)
+{
+	engine.load("function add_special(a,b) return 2*a+b end");
+	BOOST_CHECK_THROW(engine.call<std::string>("add", 2, 5), std::runtime_error);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

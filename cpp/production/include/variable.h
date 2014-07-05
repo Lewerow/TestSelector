@@ -30,7 +30,7 @@ namespace lua
 
 			lua_getglobal(machine, name().c_str());
 			if (type_matches<T>(machine, -1))
-				value_ = take<T>(machine, -1);
+				value_ = pop<T>(machine, -1);
 			else
 				throw std::runtime_error("Requested variable with wrong type: " + name());
 
@@ -73,6 +73,13 @@ namespace lua
 	{
 		return variable<T>(name, val);
 	}
+
+	template <typename T>
+	void push(lua_State* machine, const lua::variable<T>& var)
+	{
+		push(machine, var.value());
+	}
+
 }
 
 #endif
