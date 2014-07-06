@@ -103,5 +103,31 @@ BOOST_AUTO_TEST_CASE(throws_on_non_existing_function_call)
 	BOOST_CHECK_THROW(engine.call<std::string>("add", 2, 5), std::runtime_error);
 }
 
+BOOST_AUTO_TEST_CASE(tables_can_be_queried_as_variables)
+{
+	engine.load("x = {} x.x = 2");
+	BOOST_CHECK_EQUAL(engine.get<int>("x.x"), 2);
+	
+	engine.load("y = {} y.y = {} y.y.y = {} y.y.y.y = 45");
+	BOOST_CHECK_EQUAL(engine.get<std::string>("y.y.y.y"), "45");
+}
+
+BOOST_AUTO_TEST_CASE(table_variable_roudtrip)
+{
+	engine.push(lua::make_variable("x.x", 5));
+	auto x = engine.get<int>("x.x");
+	BOOST_CHECK_EQUAL(x, 5);
+
+	engine.push(lua::make_variable<std::string>("y.y.y.y", "a45"));
+	auto y = engine.get<std::string>("y.y.y.y");
+	BOOST_CHECK_EQUAL(y, "a45");
+
+	auto xx = engine.get_variable<int>("x.x");
+	BOOST_CHECK_EQUAL(xx.value(), 5);
+
+	auto yy = engine.get_variable<std::string>("y.y.y.y");
+	BOOST_CHECK_EQUAL(yy.value(), "a45");
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 BOOST_AUTO_TEST_SUITE_END()

@@ -4,7 +4,7 @@
 
 namespace coverage_generator
 {
-	testcase_chooser::testcase_chooser(std::vector<std::string>&& names) : chosen_testcases_names(names)
+	testcase_chooser::testcase_chooser(const std::vector<std::string>& names) : chosen_testcases_names(names)
 	{}
 
 	void testcase_chooser::filter(const std::regex& regex)
@@ -17,5 +17,4 @@ namespace coverage_generator
 	{
 		return chosen_testcases_names;
 	}
-
 }

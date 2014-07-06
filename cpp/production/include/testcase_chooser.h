@@ -10,7 +10,7 @@ namespace coverage_generator
 	class testcase_chooser
 	{
 	public:
-		testcase_chooser(std::vector<std::string>&& names);
+		testcase_chooser(const std::vector<std::string>& names);
 
 		void filter(const std::regex& regex);
 

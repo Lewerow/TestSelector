@@ -44,8 +44,8 @@ namespace lua
 		handle_lua_loading_error_code(machine.get(), luaL_dostring(machine.get(), code.c_str()));
 	}
 
-	void engine::load_file(const std::string& filename)
+	void engine::load_file(const boost::filesystem::path& filename)
 	{
-		handle_lua_loading_error_code(machine.get(), luaL_dofile(machine.get(), filename.c_str()));
+		handle_lua_loading_error_code(machine.get(), luaL_dofile(machine.get(), filename.string().c_str()));
 	}
 }

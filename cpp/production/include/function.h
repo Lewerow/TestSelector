@@ -30,7 +30,7 @@ namespace lua
 			push_all(machine(), args...);
 			handle_call_error(machine(), lua_pcall(machine(), (sizeof...(args)), result_count<T>::value, 0));
 
-			return pop<T>(machine(), -1);
+			return pop<T>(machine());
 		}
 
 	private:

@@ -4,8 +4,11 @@
 #include <memory>
 #include <string>
 
+#include <boost/filesystem/path.hpp>
+
 #include <lua.hpp>
 
+#include <basic_lua_helpers.h>
 #include <lua_state_default_deleter.h>
 #include <variable.h>
 #include <function.h>
@@ -18,8 +21,8 @@ namespace lua
 		engine();
 
 		void load(const std::string& code);
-		void load_file(const std::string& filename);
-
+		void load_file(const boost::filesystem::path& filename);
+		
 		template <typename T>
 		variable<T> get_variable(const std::string& varname)
 		{
@@ -49,6 +52,10 @@ namespace lua
 		{
 			return variable<T>("", call(name, args))
 		}
+
+		// will be provided later, if needed
+		engine(const engine&) = delete;
+		engine& operator=(const engine&) = delete;
 		
 	private:
 		std::unique_ptr<lua_State> machine;
