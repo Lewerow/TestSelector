@@ -4,18 +4,25 @@
 #include <unordered_map>
 #include <memory>
 
+#include <boost/type_traits.hpp>
+
 #include <boost/thread/shared_mutex.hpp>
 #include <boost/thread/shared_lock_guard.hpp>
 #include <boost/thread/locks.hpp>
 
 #include <ts_assert.h>
 
-template <typename product>
+template <typename product, typename... Args>
 struct creator
 {
-	product* create_new()
+	product* create_new(Args... args)
 	{
-		return new product;
+		return new product(args...);
+	}
+	
+	product* operator()(Args... args)
+	{
+		return create_new(args...);
 	}
 
 	typedef std::default_delete<product> deleter;
@@ -23,35 +30,36 @@ struct creator
 
 namespace policies
 {
-	template <typename T>
+	template <typename T, typename... Args>
 	struct unique_ownership
 	{
-		typedef std::unique_ptr<T, typename creator<T>::deleter> type;
+		typedef std::unique_ptr<T> type;
 
-		static type wrap(creator<T>& maker)
+		static type wrap(std::function<T*(Args...)>& maker, Args... args)
 		{
-			return type(maker.create_new());
+			return type(maker(args...));
 		}
 	};
 
-	template <typename T>
+	template <typename T, typename... Args>
 	struct shared_ownership
 	{
 		typedef std::shared_ptr<T> type;
 
-		static type wrap(creator<T>& maker)
+		static type wrap(std::function<T*(Args...)>& maker, Args... args)
 		{
-			return type(maker.create_new(), creator<T>::deleter());
+			return type(maker(args...), creator<T>::deleter());
 		}
 	};
 }
 
-/* Threading policy is defined by pointer_policy */
-template <typename product, template<class> class ownership_policy = policies::unique_ownership>
+/* Threading policy is defined by ownership policy */
+template <typename product, template<class, class...> class ownership_policy = policies::unique_ownership, typename... Args>
 class factory
 {
 public:
-	bool atomic_register_creator(const std::string& name, creator<product>&& maker)
+
+	bool atomic_register_creator(const std::string& name, std::function<product*(Args...)>&& maker)
 	{
 		boost::upgrade_lock<boost::shared_mutex> lock(mutex);
 		if (creators.count(name) > 0)
@@ -74,16 +82,16 @@ public:
 		return true;
 	}
 
-	typename ownership_policy<product>::type produce(const std::string& name)
+	typename ownership_policy<product, Args...>::type produce(const std::string& name, Args... args)
 	{
 		boost::shared_lock<boost::shared_mutex> lock(mutex);
 		TS_ASSERT(creators.count(name) == 1, "Cannot produce object of type not registered to factory");
 		
-		return ownership_policy<product>::wrap(creators.at(name));
+		return ownership_policy<product, Args...>::wrap(creators.at(name), args...);
 	}
 
 private:
-	std::unordered_map<std::string, creator<product> > creators;
+	std::unordered_map<std::string, std::function<product*(Args...)> > creators;
 	boost::shared_mutex mutex;
 };
 
