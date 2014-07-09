@@ -34,7 +34,7 @@ namespace
 
 struct factory_fixture
 {
-	factory<some_type> x;
+	factory<some_type*()> x;
 };
 
 BOOST_AUTO_TEST_SUITE(helpers)
@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_SUITE_END()
 BOOST_AUTO_TEST_SUITE(shared_owner)
 BOOST_AUTO_TEST_CASE(works_well)
 {
-	factory<some_type, policies::shared_ownership> shared_factory;
+	factory<some_type*(), policies::shared_ownership> shared_factory;
 	BOOST_CHECK(shared_factory.atomic_register_creator("some_type", some_type_creator()));
 	auto ptr = shared_factory.produce("some_type");
 	BOOST_CHECK(dynamic_cast<some_type*>(ptr.get()) != nullptr);
@@ -94,8 +94,8 @@ BOOST_AUTO_TEST_SUITE_END()
 BOOST_AUTO_TEST_SUITE(fancy_types_can_be_created)
 BOOST_AUTO_TEST_CASE(works_well)
 {
-	factory<fancy_type, policies::unique_ownership, int, int> fancy_factory;
-	BOOST_CHECK(fancy_factory.atomic_register_creator("fancy_type", creator<fancy_type, int, int>()));
+	factory<fancy_type*(int, int), policies::unique_ownership> fancy_factory;
+	BOOST_CHECK(fancy_factory.atomic_register_creator("fancy_type", creator<fancy_type>()));
 
 	auto f = fancy_factory.produce("fancy_type", 2, 5);
 	BOOST_CHECK_EQUAL(f->sum, 7);

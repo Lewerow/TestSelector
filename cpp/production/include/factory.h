@@ -5,24 +5,30 @@
 #include <memory>
 
 #include <boost/type_traits.hpp>
+#include <boost/function_types/parameter_types.hpp>
 
 #include <boost/thread/shared_mutex.hpp>
 #include <boost/thread/shared_lock_guard.hpp>
 #include <boost/thread/locks.hpp>
 
+#include <boost/bind.hpp>
+
+#include <variadic_to_mpl.h>
 #include <ts_assert.h>
 
-template <typename product, typename... Args>
+template <typename product>
 struct creator
 {
-	product* create_new(Args... args)
+	template <typename... varargs>
+	product* create_new(varargs... args)
 	{
-		return new product(args...);
+		return new product(std::forward<varargs>(args)...);
 	}
-	
-	product* operator()(Args... args)
+
+	template <typename... varargs>
+	product* operator()(varargs... args)
 	{
-		return create_new(args...);
+		return create_new(std::forward<varargs>(args)...);
 	}
 
 	typedef std::default_delete<product> deleter;
@@ -30,36 +36,51 @@ struct creator
 
 namespace policies
 {
-	template <typename T, typename... Args>
+	template <typename T>
 	struct unique_ownership
 	{
-		typedef std::unique_ptr<T> type;
+		static_assert(std::is_pointer<T>::value, "Only pointers can be used in unique ownership policy");
 
-		static type wrap(std::function<T*(Args...)>& maker, Args... args)
+		typedef T input;
+		typedef std::unique_ptr<typename std::remove_pointer<T>::type> type;
+
+		template <typename... varargs>
+		static type wrap(std::function<input(varargs...)>& maker, varargs... args)
 		{
-			return type(maker(args...));
+			return type(maker(std::forward<varargs>(args)...));
 		}
 	};
 
-	template <typename T, typename... Args>
+	template <typename T>
 	struct shared_ownership
 	{
-		typedef std::shared_ptr<T> type;
+		static_assert(std::is_pointer<T>::value, "Only pointers can be used in unique ownership policy");
 
-		static type wrap(std::function<T*(Args...)>& maker, Args... args)
+		typedef T input;
+		typedef typename std::remove_pointer<input>::type stripped_input;
+		typedef std::shared_ptr<stripped_input> type;
+
+		template <typename... varargs>
+		static type wrap(std::function<input(varargs...)>& maker, varargs... args)
 		{
-			return type(maker(args...), creator<T>::deleter());
+			return type(maker(std::forward<varargs>(args)...), creator<stripped_input>::deleter());
 		}
 	};
 }
 
 /* Threading policy is defined by ownership policy */
-template <typename product, template<class, class...> class ownership_policy = policies::unique_ownership, typename... Args>
+template <typename creator_function, template<class> class ownership_policy = policies::unique_ownership>
 class factory
 {
+	typedef factory<creator_function, ownership_policy> this_type;
 public:
 
-	bool atomic_register_creator(const std::string& name, std::function<product*(Args...)>&& maker)
+	typedef typename boost::function_traits<creator_function>::result_type product;
+	typedef typename boost::function_types::parameter_types<creator_function>::type argtypes;
+
+	static_assert(std::is_same<product, typename ownership_policy<product>::input >::value, "Only types matching ownership policy may be produced by a factory");
+
+	bool atomic_register_creator(const std::string& name, std::function<creator_function>&& maker)
 	{
 		boost::upgrade_lock<boost::shared_mutex> lock(mutex);
 		if (creators.count(name) > 0)
@@ -82,18 +103,18 @@ public:
 		return true;
 	}
 
-	typename ownership_policy<product, Args...>::type produce(const std::string& name, Args... args)
+	template <typename... varargs>
+	typename ownership_policy<product>::type produce(const std::string& name, varargs... args)
 	{
 		boost::shared_lock<boost::shared_mutex> lock(mutex);
 		TS_ASSERT(creators.count(name) == 1, "Cannot produce object of type not registered to factory");
 		
-		return ownership_policy<product, Args...>::wrap(creators.at(name), args...);
+		return ownership_policy<product>::wrap(creators.at(name), std::forward<varargs>(args)...);
 	}
 
 private:
-	std::unordered_map<std::string, std::function<product*(Args...)> > creators;
+	std::unordered_map<std::string, std::function<creator_function> > creators;
 	boost::shared_mutex mutex;
 };
-
 
 #endif
