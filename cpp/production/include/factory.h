@@ -11,9 +11,6 @@
 #include <boost/thread/shared_lock_guard.hpp>
 #include <boost/thread/locks.hpp>
 
-#include <boost/bind.hpp>
-
-#include <variadic_to_mpl.h>
 #include <ts_assert.h>
 
 template <typename product>

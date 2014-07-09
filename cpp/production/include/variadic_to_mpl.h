@@ -3,24 +3,6 @@
 
 #include <boost/function_types/result_type.hpp>
 #include <boost/mpl/vector.hpp>
-/*
-template <typename boost_sequence, typename arg>
-struct variadic_to_mpl
-{
-	typedef typename variadic_to_mpl<typename boost::mpl::push_back<boost_sequence, arg>::type type;
-};
-
-template <typename boost_sequence, typename arg, typename... varargs>
-struct variadic_to_mpl
-{
-	typedef typename variadic_to_mpl<typename boost::mpl::push_back<boost_sequence, arg>::type, varargs...>::type type;
-};
-
-template <typename arg, typename... varargs>
-struct variadic_to_mpl
-{
-	typedef typename variadic_to_mpl<typename boost::mpl::vector<arg>::type, varargs...>::type type;
-};*/
 
 struct empty_linked_list
 {};
