@@ -12,7 +12,6 @@ namespace
 			sum = a + b;
 		}
 
-		fancy_type(const fancy_type&) = delete;
 		int sum;
 	};
 
@@ -99,6 +98,15 @@ BOOST_AUTO_TEST_CASE(works_well)
 
 	auto f = fancy_factory.produce("fancy_type", 2, 5);
 	BOOST_CHECK_EQUAL(f->sum, 7);
+}
+
+BOOST_AUTO_TEST_CASE(works_well_with_no_type_change)
+{
+	factory<fancy_type(int, int), policies::no_type_change_ownership> fancy_factory;
+	BOOST_CHECK(fancy_factory.atomic_register_creator("fancy_type", [](int i, int j){return fancy_type(i, j);}));
+
+	auto f = fancy_factory.produce("fancy_type", 2, 5);
+	BOOST_CHECK_EQUAL(f.sum, 7);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

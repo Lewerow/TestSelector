@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <memory>
 
+#include <boost/mpl/equal.hpp>
 #include <boost/type_traits.hpp>
 #include <boost/function_types/parameter_types.hpp>
 
@@ -11,6 +12,7 @@
 #include <boost/thread/shared_lock_guard.hpp>
 #include <boost/thread/locks.hpp>
 
+#include <variadic_to_mpl.h>
 #include <ts_assert.h>
 
 template <typename product>
@@ -63,6 +65,19 @@ namespace policies
 			return type(maker(std::forward<varargs>(args)...), creator<stripped_input>::deleter());
 		}
 	};
+
+	template <typename T>
+	struct no_type_change_ownership
+	{
+		typedef T input;
+		typedef T type;
+
+		template <typename... varargs>
+		static type wrap(std::function<input(varargs...)>& maker, varargs... args)
+		{
+			return maker(std::forward<varargs>(args)...);
+		}
+	};
 }
 
 /* Threading policy is defined by ownership policy */
@@ -103,6 +118,12 @@ public:
 	template <typename... varargs>
 	typename ownership_policy<product>::type produce(const std::string& name, varargs... args)
 	{
+		typedef variadic_to_mpl<varargs...>::type received_parameter_types;
+		typedef boost::function_types::parameter_types<creator_function>::type available_parameter_types;
+		
+		static_assert(typename boost::mpl::equal<received_parameter_types, available_parameter_types>::type::value,
+			"Cannot produce with parameters different than requested by factory template parameters");
+		
 		boost::shared_lock<boost::shared_mutex> lock(mutex);
 		TS_ASSERT(creators.count(name) == 1, "Cannot produce object of type not registered to factory");
 		
