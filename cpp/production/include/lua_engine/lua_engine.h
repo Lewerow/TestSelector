@@ -8,10 +8,10 @@
 
 #include <lua.hpp>
 
-#include <basic_lua_helpers.h>
-#include <lua_state_default_deleter.h>
-#include <variable.h>
-#include <function.h>
+#include <lua_engine/basic_lua_helpers.h>
+#include <lua_engine/lua_state_default_deleter.h>
+#include <lua_engine/variable.h>
+#include <lua_engine/function.h>
 
 namespace lua
 {

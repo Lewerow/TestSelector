@@ -3,19 +3,16 @@
 
 #include <boost/filesystem/path.hpp>
 
-#include <lua_engine.h>
+#include <lua_engine/lua_engine.h>
 
-namespace coverage_generator
+class configurator
 {
-	class configurator
-	{
-	public:
-		configurator(const boost::filesystem::path& configuration_file);
-		~configurator();
+public:
+	configurator(const boost::filesystem::path& configuration_file);
+	~configurator();
 
-	private:
-		lua::engine configuration_engine;
-	};
-}
+private:
+	lua::engine configuration_engine;
+};
 
 #endif

@@ -39,13 +39,29 @@ namespace lua
 		return lua_stack_helper<T>::push(machine, val);
 	}
 
-	void push_all(lua_State* machine);
-
-	template<typename Arg, typename... Args>
-	void push_all(lua_State* machine, Arg arg, Args... args)
+	template<typename... varargs>
+	struct all_pusher
 	{
-		push<Arg>(machine, arg);
-		push_all(machine, args...);
+		static void push(lua_State* machine, varargs... args)
+		{
+			static_assert(sizeof...(varargs) == 0, "Only for recursion end");
+		}
+	};
+
+	template<typename vararg, typename... varargs>
+	struct all_pusher<vararg, varargs...>
+	{
+		static void push(lua_State* machine, vararg arg, varargs... args)
+		{
+			lua::push<vararg>(machine, arg);
+			push_all(machine, args...);
+		}
+	};
+
+	template<typename... varargs>
+	void push_all(lua_State* machine, varargs... args)
+	{
+		all_pusher<varargs...>::push(machine, args...);
 	}
 }
 

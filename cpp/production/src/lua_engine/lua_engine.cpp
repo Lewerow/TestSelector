@@ -1,8 +1,8 @@
 #include <exception>
 
 #include <ts_assert.h>
-#include <lua_engine.h>
-#include <lua_exceptions.h>
+#include <lua_engine/lua_engine.h>
+#include <lua_engine/lua_exceptions.h>
 
 namespace
 {

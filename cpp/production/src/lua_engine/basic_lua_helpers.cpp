@@ -1,8 +1,8 @@
 #include <lua.hpp>
 
 #include <ts_assert.h>
-#include <basic_lua_helpers.h>
-#include <type_specializations.h>
+#include <lua_engine/basic_lua_helpers.h>
+#include <lua_engine/type_specializations.h>
 
 namespace lua
 {

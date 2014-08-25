@@ -3,7 +3,7 @@
 
 #include <ostream>
 
-#include <variable.h>
+#include <lua_engine/variable.h>
 
 namespace lua
 {
