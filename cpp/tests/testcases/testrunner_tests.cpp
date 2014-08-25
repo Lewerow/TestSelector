@@ -9,6 +9,8 @@
 #include <coverage_gathering_strategy.h>
 #include <test_runner.h>
 #include <testcase_chooser.h>
+#include <coverage_database.h>
+#include <coverage_generator.h>
 
 
 BOOST_AUTO_TEST_SUITE(test_runner_tests)
@@ -29,13 +31,34 @@ BOOST_AUTO_TEST_CASE(testcase_chooser_chooses_testcases_matching_filter)
 	check_testcases({ "xxx_test" });
 }
 
+struct fixture
+{/*
+	configurator conf("../../tests/files/basic_configuration.lua");
+	coverage::database cdb;
+	test_runner tr(conf);
+	coverage::generator cg(cdb);
 
-BOOST_AUTO_TEST_CASE(test_runner_shall_run_all_tests)
+	tr.attach_testcase_observer(&cg);
+	tr.run_tests();
+	tr.detach_testcase_observer(&cg);
+	*/
+};
+
+BOOST_AUTO_TEST_CASE(asserts_at_detaching_not_attached)
 {
-	std::shared_ptr<coverage_generator::configurator> configurator(std::make_shared<coverage_generator::configurator>(boost::filesystem::path("../../tests/files/basic_configuration.lua")));
-	std::unique_ptr<coverage_generator::coverage_gathering_strategy> gathering_strategy(std::make_unique<coverage_generator::coverage_gathering_strategy>(configurator));
-	std::unique_ptr<coverage_generator::test_execution_strategy> execution_strategy(std::make_unique<coverage_generator::test_execution_strategy>(configurator));
-	coverage_generator::test_runner runner;
+
+}
+
+BOOST_AUTO_TEST_CASE(typical_use_case)
+{
+	configurator conf("../../tests/files/basic_configuration.lua");
+	coverage::database cdb;
+	test_runner tr(conf);
+	coverage::generator cg(cdb);
+
+	tr.attach_testcase_observer(&cg);
+	tr.run_tests();
+	tr.detach_testcase_observer(&cg);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -1,7 +1,8 @@
 #include <boost/test/auto_unit_test.hpp>
-#include <lua_engine.h>
 
-#include <variable_operators.h>
+#include <lua_engine/lua_engine.h>
+
+#include <lua_engine/variable_operators.h>
 
 struct lua_fixture
 {
@@ -59,7 +60,7 @@ BOOST_AUTO_TEST_CASE(optional_roundtrip)
 
 BOOST_AUTO_TEST_CASE(configuration_file_can_be_read)
 {
-	engine.load_file("../../tests/files/basic_configuration.lua");
+	engine.load_file("../../tests/files/fake_file_for_lua_engine_checks.lua");
 	BOOST_CHECK_EQUAL(engine.get<int>("x"), 5);
 	BOOST_CHECK_EQUAL(engine.get<std::string>("y"), "kot");
 }
