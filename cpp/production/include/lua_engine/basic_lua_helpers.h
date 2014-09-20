@@ -28,10 +28,10 @@ namespace lua
 			class exact_stack_size_change
 			{
 			public:
-				exact_stack_size_change::exact_stack_size_change(lua_State* lua_machine) : machine(lua_machine), top(lua_gettop(machine))
+				exact_stack_size_change(lua_State* lua_machine) : machine(lua_machine), top(lua_gettop(machine))
 				{}
 
-				exact_stack_size_change::~exact_stack_size_change()
+				~exact_stack_size_change()
 				{
 					int new_top = lua_gettop(machine);
 					TS_ASSERT((top + expected_change == new_top), "Top of Lua stack has changed more than expected");

@@ -62,7 +62,7 @@ namespace policies
 		template <typename... varargs>
 		static type wrap(std::function<input(varargs...)>& maker, varargs... args)
 		{
-			return type(maker(std::forward<varargs>(args)...), creator<stripped_input>::deleter());
+			return type(maker(std::forward<varargs>(args)...), typename creator<stripped_input>::deleter());
 		}
 	};
 
@@ -118,10 +118,10 @@ public:
 	template <typename... varargs>
 	typename ownership_policy<product>::type produce(const std::string& name, varargs... args)
 	{
-		typedef variadic_to_mpl<varargs...>::type received_parameter_types;
-		typedef boost::function_types::parameter_types<creator_function>::type available_parameter_types;
-		
-		static_assert(typename boost::mpl::equal<received_parameter_types, available_parameter_types>::type::value,
+		typedef typename variadic_to_mpl<varargs...>::type received_parameter_types;
+		typedef typename boost::function_types::parameter_types<creator_function>::type available_parameter_types;
+		typedef typename boost::mpl::equal<received_parameter_types, available_parameter_types>::type params_match; // hack to overcome gcc compilation failure
+		static_assert(params_match::value,
 			"Cannot produce with parameters different than requested by factory template parameters");
 		
 		boost::shared_lock<boost::shared_mutex> lock(mutex);

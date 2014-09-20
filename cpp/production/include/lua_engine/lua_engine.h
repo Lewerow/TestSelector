@@ -50,7 +50,7 @@ namespace lua
 		template <typename T, typename... Args>
 		variable<T> call_variable(const std::string& name, Args... args)
 		{
-			return variable<T>("", call(name, args))
+			return variable<T>("", call(name, args...));
 		}
 
 		// will be provided later, if needed

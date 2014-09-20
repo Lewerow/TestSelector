@@ -26,7 +26,7 @@ namespace
 			throw std::runtime_error(lua_tostring(machine, -1));
 			break;
 		case LUA_ERRERR:
-			throw std::exception(lua_tostring(machine, -1));
+			throw std::logic_error(lua_tostring(machine, -1));
 			break;
 		default:
 			TS_ASSERT(false, "Not supported error code!");

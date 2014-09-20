@@ -9,22 +9,22 @@
 template <typename... varargs>
 struct variadic_to_mpl
 {
-	template <typename boost_container, typename... varargs>
+	template <typename boost_container, typename... varargs_internal>
 	struct helper
 	{
-		template <typename boost_container, typename... varargs>
-		struct helper_
+		template <typename boost_container_internal, typename... varargs_uber_internal>
+		struct internal_helper
 		{
-			typedef typename boost_container::type type;
+			typedef typename boost_container_internal::type type;
 		};
 
-		template <typename boost_container, typename vararg, typename... varargs>
-		struct helper_<boost_container, vararg, varargs...>
+		template <typename boost_container_internal, typename vararg, typename... varargs_uber_internal>
+		struct internal_helper<boost_container_internal, vararg, varargs_uber_internal...>
 		{
-			typedef typename helper<typename boost::mpl::push_back<boost_container, vararg>::type, varargs...>::type type;
+			typedef typename helper<typename boost::mpl::push_back<boost_container_internal, vararg>::type, varargs_uber_internal...>::type type;
 		};
 
-		typedef typename helper_<boost_container, varargs...>::type type;
+		typedef typename internal_helper<boost_container, varargs_internal...>::type type;
 	};
 
 	typedef typename helper <typename boost::mpl::clear<boost::mpl::vector<int> >::type, varargs...>::type type;
