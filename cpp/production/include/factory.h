@@ -12,7 +12,7 @@
 #include <boost/thread/shared_lock_guard.hpp>
 #include <boost/thread/locks.hpp>
 
-#include <variadic_to_mpl.h>
+#include <metaprogramming/variadic_to_mpl.h>
 #include <ts_assert.h>
 
 template <typename product>
@@ -118,7 +118,7 @@ public:
 	template <typename... varargs>
 	typename ownership_policy<product>::type produce(const std::string& name, varargs... args)
 	{
-		typedef typename variadic_to_mpl<varargs...>::type received_parameter_types;
+		typedef typename metaprogramming::variadic_to_mpl<varargs...>::type received_parameter_types;
 		typedef typename boost::function_types::parameter_types<creator_function>::type available_parameter_types;
 		typedef typename boost::mpl::equal<received_parameter_types, available_parameter_types>::type params_match; // hack to overcome gcc compilation failure
 		static_assert(params_match::value,
