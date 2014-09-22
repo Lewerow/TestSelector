@@ -6,7 +6,7 @@ PROJECT(Tester)
 SET(TEST_DIR ${ROOT_DIR}/tests)
 SET(TEST_FRAMEWORK_INCLUDE_DIRS ${TEST_DIR}/doubles/*.h ${TEST_DIR}/helpers/*.h)
 
-MESSAGE("Test code directory: " ${TEST_DIR})
+MESSAGE("-- Test code directory: " ${TEST_DIR})
 
 FILE (GLOB HEADERS ${TEST_DIR}/*/*.hpp)
 FILE (GLOB SOURCES ${TEST_DIR}/testcases/*.cpp ${TEST_DIR}/helpers/*.cpp ${TEST_DIR}/doubles/*.cpp)
@@ -26,10 +26,10 @@ IF(NOT DEFINED TURTLE_ROOT)
   "You need to set TURTLE_ROOT environment variable to path where Turtle Mock is installed. "
   "Turtle Mock can be downloaded for free from http://turtle.sourceforge.net/") 
 ENDIF()
-MESSAGE("Found Turtle Mock in: " ${TURTLE_ROOT})
+MESSAGE("-- Found Turtle Mock in: " ${TURTLE_ROOT})
 
 INCLUDE_DIRECTORIES(${TURTLE_ROOT})
 
 LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 ADD_EXECUTABLE(Tester ${SOURCES})
-TARGET_LINK_LIBRARIES(Tester TestSelector PugiXML Lua ${Boost_LIBRARIES})
+TARGET_LINK_LIBRARIES(Tester TestSelector PugiXML Lua ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
