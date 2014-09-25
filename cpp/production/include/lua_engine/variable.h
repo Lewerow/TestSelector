@@ -111,7 +111,7 @@ namespace lua
 		static std::vector<std::string> make_path(const std::string& new_name)
 		{
 			std::vector<std::string> path;
-			boost::split(path, new_name, [](char c){return c == '.'; });
+			boost::split(path, new_name, [](char c){return (c == '.'); });
 			return path;
 		}
 
