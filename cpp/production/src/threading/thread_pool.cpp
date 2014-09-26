@@ -20,9 +20,9 @@ namespace threading
         workers.emplace_back(std::bind(&thread_pool::work, this));
     }
 
-    void thread_pool::schedule(std::function<void(void)> task)
+    bool thread_pool::schedule(std::function<void(void)>&& task)
     {
-        task_queue.push_back(task);
+        return task_queue.push_back(task);
     }    
 
     void thread_pool::work()

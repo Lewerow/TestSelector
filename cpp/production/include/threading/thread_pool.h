@@ -15,7 +15,7 @@ namespace threading
             thread_pool(std::size_t pool_size); 
             ~thread_pool();
 
-            void schedule(std::function<void(void)> task);
+            bool schedule(std::function<void(void)>&& task);
 
         private:
         
