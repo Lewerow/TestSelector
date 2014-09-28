@@ -1,20 +1,20 @@
-#include <threading/MultithreadedLogger.h>
+#include <threading/multithreaded_logger.h>
 
 namespace threading
 {
-    LoggerSink::LoggerSink(ostream& sink_) : sink(sink)
+    logger_sink::logger_sink(std::ostream& sink_) : sink(sink_)
     {}
 
-    bool LoggerSink::log(const std::string& msg)
+    bool logger_sink::log(const std::string& msg)
     {
         return worker.schedule([&](){sink << msg << std::endl;});
     }
 
-    MultithreadedLogger::MultithreadedLogger(LoggerSink& sink_) : sink(sink_)
+    multithreaded_logger::multithreaded_logger(logger_sink& sink_) : sink(sink_)
     {}
     
-    bool MultithreadedLogger::log(const std::string& msg)
+    bool multithreaded_logger::log(const std::string& msg)
     {
-        sink.log(msg);
+        return sink.log(msg);
     }
 }

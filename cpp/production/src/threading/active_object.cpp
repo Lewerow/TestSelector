@@ -7,6 +7,6 @@ namespace threading
 
     bool active_object::schedule(std::function<void(void)>&& f)
     {
-        return worker.schedule(std::forward(f));
+        return worker.schedule(std::move(f));
     }
 }

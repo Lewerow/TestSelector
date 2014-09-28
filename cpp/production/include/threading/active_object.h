@@ -1,5 +1,5 @@
 #ifndef ACTIVE_OBJECT_oeiwjfioewjf8j34fuiejgrerkmflkewdoiewkjf4
-#ifndef ACTIVE_OBJECT_oeiwjfioewjf8j34fuiejgrerkmflkewdoiewkjf4
+#define ACTIVE_OBJECT_oeiwjfioewjf8j34fuiejgrerkmflkewdoiewkjf4
 
 #include <threading/thread_pool.h>
 

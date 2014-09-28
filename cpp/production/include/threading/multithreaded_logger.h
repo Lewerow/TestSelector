@@ -7,32 +7,33 @@
 
 namespace threading
 {
-    class Logger
+    class logger
     {
-        virtual ~Logger(){}
+    public:
+        virtual ~logger(){}
         virtual bool log(const std::string&) = 0;
     };
 
-    class LoggerSink : public Logger
+    class logger_sink : public logger
     {
     public:
-        LoggerSink(ostream& sink_);
+        logger_sink(std::ostream& sink_);
 
         bool log(const std::string&);
 
     private:
         active_object worker;
-        ostream& sink;
-    }
+        std::ostream& sink;
+    };
 
-    class MultithreadedLogger : public Logger
+    class multithreaded_logger : public logger
     {
     public:
-        MultithreadedLogger(LoggerSink& sink_);
+        multithreaded_logger(logger_sink& sink_);
 
         bool log(const std::string&);
     private:
-        LoggerSink& sink;
+        logger_sink& sink;
     };
 
 }

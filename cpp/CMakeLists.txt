@@ -17,9 +17,9 @@ SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/exe)
 
 IF (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     FIND_PACKAGE(Threads REQUIRED)
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y -pthread")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y -pthread -g")
+    ADD_SANITIZERS_TO_BUILD()
 
-    MESSAGE(${CMAKE_CXX_FLAGS} DUPA)
     IF(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
         SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
         SET_CLANG_BOOST_COMPILER_FLAGS() #because FindBoost sucks at finding boost compiled with versioned layout by Clang
