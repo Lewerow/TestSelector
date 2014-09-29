@@ -30,6 +30,9 @@ namespace threading
     {
     public:
         multithreaded_logger(logger_sink& sink_);
+		multithreaded_logger(multithreaded_logger&) = default;
+		multithreaded_logger& operator=(multithreaded_logger&) = delete;
+
 
         bool log(const std::string&);
     private:

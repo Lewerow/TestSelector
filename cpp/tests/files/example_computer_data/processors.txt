@@ -1,0 +1,34 @@
+i7-4820K:
+Processor Plug LGA1155,
+QPI/DMI 5GT/s,
+Power Sink 130 W
+
+i3-3250
+Processor Plug LGA1155
+QPI/DMI 5 GT/s
+Power Sink 55 W
+
+i5-4460
+Processor Plug LGA1150
+QPI/DMI 5 GT/s
+Power Sink 84 W
+
+X8FX9590
+Processor Plug AM3+
+FSB 2000 MHz
+Power Sink 220 W
+
+X4FZ4300
+Processor Plug AM3+
+FSB 2600 MHz
+Power Sink 95 W
+
+Athlon5350
+Processor Plug AM1
+FSB unknown
+Power Sink 25 W
+
+Sempron3850
+Processor Plug AM1
+FSB unknown
+Power Sink 25W

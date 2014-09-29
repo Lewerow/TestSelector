@@ -2,7 +2,7 @@
 
 namespace coverage
 {
-	generator::generator(database& db)
+	generator::generator(database&)
 	{
 	}
 }

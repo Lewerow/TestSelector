@@ -1,0 +1,46 @@
+GTX970Strix
+PCI-Ex16 Plug 1
+HDMI Source 1
+DP Source 1
+DVI-I Source 1
+DVI-D Source 1
+Width 28 cm
+Depth 14 cm
+Height unknown
+Power Sink unknown
+Minimum Power Source 500 W
+Max Resolution unknown
+
+GTX750Ti
+PCI-Ex16 Plug 1
+HDMI Source 1
+D-Sub Source 1
+DVI-D Source 2
+Width 21.8 cm
+Depth 11.5 cm
+Height 3.9 cm
+Power Sink 60 W
+Max Resolution 2560x1600 px
+
+R9270DCII
+PCI-Ex16 Plug 1 & PCI 6 pin
+HDMI Source 1
+DVI-I Source 1
+DP Source 1
+DVI-D Source 1
+Width 23.37 cm
+Depth 12.45 cm
+Height 3.81 cm
+Power Sink 150 W
+Max Resolution 2560x1600 px
+
+R9290XGaming
+PCI-Ex16 Plug 1 & PCI 6 pin & PCI 8 pin
+HDMI Source 1
+DP Source 1
+DVI-D Source 2
+Width 27.6 cm
+Depth 12.7 cm
+Height 3.9 cm
+Power Sink 250 W
+Max Resolution 2560x1600 px

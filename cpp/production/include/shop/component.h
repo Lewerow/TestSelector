@@ -39,9 +39,13 @@ namespace shop
     };
 
     struct configuration_change
-    {
-        const component& existing;
-        std::vector<std::pair<component const * const, recommendation_comment> > recommended;
+	{
+		configuration_change(const component* current, const std::vector<std::pair<const component*, recommendation_comment> >&& recommendations);
+		configuration_change(const configuration_change&) = default;
+		configuration_change& operator=(configuration_change&) = delete;
+
+        const component* existing;
+        const std::vector<std::pair<const component*, recommendation_comment> > recommended;
     }; 
 
     struct review_status
@@ -59,7 +63,7 @@ namespace shop
     class component_source
     {
     public:
-        virtual const std::vector<component const * const> get_components_with_interface(const interface& inter) const = 0;
+        virtual const std::vector<const component*> get_components_with_interface(const interface& inter) const = 0;
     };
 
     template <typename parent_reader>
@@ -85,16 +89,16 @@ namespace shop
     class interface_reader : public generic_reader<interface_reader>
     {
     public:
-        virtual std::pair<interface_name, serialized> fetch_next(interface&&) = 0;
+        virtual const std::pair<interface_name, serialized> fetch_next(interface&&) = 0;
         virtual bool more_interfaces_available() = 0;
-        virtual std::vector<interface_name> get_compatible_interfaces_names(const interface_name&) = 0;
+        virtual const std::vector<interface_name> get_compatible_interfaces_names(const interface_name&) = 0;
     };
     
     class data_holder
     {
     public:
-        component const * const get_component(const component_name&) const;
-        interface const * const get_interface(const interface_name&) const;
+        const component* get_component(const component_name&) const;
+        const interface* get_interface(const interface_name&) const;
 
         void load_components(const component_reader& reader);
         void load_interfaces(const interface_reader& reader);
@@ -107,15 +111,15 @@ namespace shop
     class recommendation_agent
     {
     public:
-        virtual std::vector<component const * const> recommend_component(const name_type& type, const product& target) const = 0;
-        virtual std::vector<configuration_change> recommend_changes(const product& rated) const = 0;
-        virtual std::map<name_type, review_status> review(const product& reviewed) const = 0;
+        virtual const std::vector<const component*> recommend_component(const name_type& type, const product& target) const = 0;
+        virtual const std::vector<configuration_change> recommend_changes(const product& rated) const = 0;
+        virtual const std::map<name_type, review_status> review(const product& reviewed) const = 0;
     };
 
     class interface
     {
     public:
-        std::vector<const interface*> get_compatible_interfaces() const;
+        const std::vector<const interface*> get_compatible_interfaces() const;
 
         void add_compatible_interface(const interface*);
     private:
@@ -126,16 +130,16 @@ namespace shop
     class connector
     {
     public:
-        std::set<interface const * const> get_compatible_interfaces() const;
+        const std::set<const interface*> get_compatible_interfaces() const;
 
     private:
-        std::vector<interface const * const> outputs;
+        std::vector<const interface*> outputs;
     };
 
     class component
     {
     public:
-        std::set<component const * const> get_compatible_components(const component_source& source) const;
+        const std::set<const component*> get_compatible_components(const component_source& source) const;
 
     private:
         std::vector<connector> connectors;
@@ -144,9 +148,9 @@ namespace shop
     class product
     {
     public:
-        std::map<std::string, std::vector<component const * const> > get_recommended_components(const recommendation_agent&, const component_source&) const;
+        const std::map<std::string, std::vector<const component*> > get_recommended_components(const recommendation_agent&, const component_source&) const;
 
-        std::map<name_type, component const * const> selected;
+        std::map<name_type, const component*> selected;
         std::map<name_type, quantity> mandatory_components;
         std::map<name_type, quantity> optional_components;
     };
