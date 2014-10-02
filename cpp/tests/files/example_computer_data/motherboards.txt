@@ -1,0 +1,62 @@
+AM1BM
+Motherboard Plug microATX
+Processor Slot AM1 / FS1B
+MemoryRail 1066 / 1333 / 1600 MHz
+Memory Slot DDR3 2
+Max Memory Size 16 GB
+PCI Slot 0
+PCI-E16x Slot 1
+PCI-E1x Slot 1
+USB2.0 Slot 8
+USB3.0 Slot 2
+SATA 2
+SATA 600 MB/s
+Power Source 24 Pin
+
+GA970ADS3P
+Motherboard Plug ATX
+Processor Slot AM3 / AM3+
+MemoryRail 1066 / 1333 / 1600 / 1866 / 2000 MHz
+Memory Slot DDR3 4
+Max Memory Size 32 GB
+PCI Slot 2
+PCI-E16x Slot 2
+PCI-E1x Slot 3
+USB2.0 Slot 12
+USB3.0 Slot 4
+SATA 6
+SATA 600 MB/s
+Power Source 24 Pin
+
+P8H77MLE
+Motherboard Plug microATX
+Processor Slot LGA1155
+MemoryRail 1066 / 1333 / 1600 MHz
+Memory Slot DDR3 2
+Max Memory Size 16 GB
+PCI Slot 1
+PCI-E16x Slot 1
+PCI-E4x Slot 1
+PCI-E1x Slot 1
+USB2.0 Slot 10
+USB3.0 Slot 4
+SATA 6
+SATA 600 MB/s
+Power Source 24 Pin
+
+B75MDGS
+Motherboard Plug microATX
+Processor Slot LGA1155
+MemoryRail 1066 / 1333 / 1600 MHz
+Memory Slot DDR3 2
+Max Memory Size 16 GB
+PCI Slot 1
+PCI-E16x Slot 1
+PCI-E4x Slot 0
+PCI-E1x Slot 0
+USB2.0 Slot 8
+USB3.0 Slot 4
+SATA 4
+SATA 600 MB/s
+Power Source 24 Pin
+

@@ -1,0 +1,23 @@
+AerocoolVS-600
+Power Source 600 W
+Width 150 mm
+Depth 140 mm
+Height 86 mm
+
+CXCP9020046EU
+Power Source 430 W
+Width 150 mm
+Depth 140 mm
+Height 86 mm
+
+XFXP11250BEFX
+Power Source 1250 W
+Width 190 mm
+Depth 150 mm
+Height 86 mm
+
+HighlanderSilent
+Power Source 400 W
+Width unknown
+Depth unknown
+Height unknown

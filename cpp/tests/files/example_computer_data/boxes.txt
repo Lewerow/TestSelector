@@ -1,0 +1,52 @@
+PGSMechatronBlack
+Motherboard Slot microATX / ATX
+Pocket3.5 Slot External 0
+Pocket5.25 Slot External 3
+Pockets3.5 Slot Internal 4
+Pockets Slot Total 7
+Fan Slot 120 mm 10
+Fan Slot 140 mm 2
+USB2.0 Slot 0
+USB3.0 Slot 2
+Microphone Slot 1
+Headset Slot 1
+Width 226 mm
+Length 534 mm 
+Height 502 mm
+Max Graphics Length 330 mm
+Max CPUFan Height 176.3 mm
+
+VS3
+Motherboard Slot microATX / ATX
+Pocket3.5 Slot External 0
+Pocket5.25 Slot External 3
+Pocket3.5 Slot Internal 6
+Pockets Slot Total 7
+Fan Slot 120 mm 6
+Fan Slot 140 mm 2
+USB2.0 Slot 2
+USB3.0 Slot 0
+Microphone Slot 1
+Headset Slot 1
+Width 180 mm
+Lenght 475 mm
+Height 440 mm
+Max Graphics Lenght 400 mm
+Max CPUFan Height unknown
+
+LF02BOP
+Motherboard Slot microATX / ATX
+Pocket3.5 Slot External 1
+Pocket5.25 Slot External 2
+Pocket3.5 Slot Internal 4
+Pockets Slot Total 7
+Fan Slot 120 mm 5
+USB2.0 Slot 2
+USB3.0 Slot 1
+Microphone Slot 1
+Headset Slot 1
+Width 200 mm
+Lenght 487 mm
+Height 445 mm
+Max Graphics Lenght unknown
+Max CPUFan Height unknown
