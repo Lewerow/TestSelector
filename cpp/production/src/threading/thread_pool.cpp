@@ -4,7 +4,7 @@ namespace threading
 {
     thread_pool::thread_pool(std::size_t pool_size)
     {
-        for(int i = 0; i < pool_size; ++i)
+        for(std::size_t i = 0; i < pool_size; ++i)
             spawn_thread();
     }
 

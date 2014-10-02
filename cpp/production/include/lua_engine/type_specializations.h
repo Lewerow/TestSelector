@@ -42,7 +42,7 @@ namespace lua
     template<typename... varargs>
 	struct all_pusher
 	{
-		static void push(lua_State* machine, varargs... args)
+		static void push(lua_State*, varargs...)
 		{
 			static_assert(sizeof...(varargs) == 0, "Only for recursion end");
 		}

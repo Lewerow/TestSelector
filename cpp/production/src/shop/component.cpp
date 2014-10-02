@@ -5,14 +5,18 @@ namespace shop
     quantity::quantity(std::size_t size) : exact(size)
     {}
 
-    std::vector<const interface*> interface::get_compatible_interfaces() const
+
+	configuration_change::configuration_change(const component* current, const std::vector<std::pair<const component*, recommendation_comment> >&& recommendations) : existing(current), recommended(recommendations)
+	{}
+
+    const std::vector<const interface*> interface::get_compatible_interfaces() const
     {
         return compatible_interfaces;
     }
 
-    std::set<interface const * const> connector::get_compatible_interfaces() const
+    const std::set<const interface*> connector::get_compatible_interfaces() const
     {
-        std::set<interface const * const> interfaces;
+        std::set<const interface*> interfaces;
         for(const auto& i: outputs)
             for(const auto& c : i->get_compatible_interfaces())
                 interfaces.insert(c);
@@ -25,14 +29,14 @@ namespace shop
         compatible_interfaces.push_back(i);
     }    
 
-    std::set<component const * const> component::get_compatible_components(const component_source& source) const
+    const std::set<const component*> component::get_compatible_components(const component_source& source) const
     {
-        std::set<interface const * const> compatible_interfaces;
+        std::set<const interface*> compatible_interfaces;
         for(const auto& c: connectors)
             for(const auto* u: c.get_compatible_interfaces())
                 compatible_interfaces.insert(u);
 
-        std::set<component const * const> compatible_components;
+        std::set<const component*> compatible_components;
         for(auto const * const i: compatible_interfaces)
             for(auto const * const j: source.get_components_with_interface(*i))
                 compatible_components.insert(j);
@@ -40,9 +44,9 @@ namespace shop
         return compatible_components;
     }
 
-    std::map<std::string, std::vector<component const * const> > product::get_recommended_components(const recommendation_agent& agent, const component_source& source) const
+    const std::map<std::string, std::vector<const component*> > product::get_recommended_components(const recommendation_agent& agent, const component_source&) const
     {
-        std::map<std::string, std::vector<component const * const> > recommended_components;
+        std::map<std::string, std::vector<const component*> > recommended_components;
         for(const auto& c: mandatory_components)
             if(selected.count(c.first) == 0)
                 recommended_components.insert(std::make_pair(c.first, agent.recommend_component(c.first, *this)));
@@ -54,21 +58,21 @@ namespace shop
         return recommended_components;
     }
  
-    interface const * const data_holder::get_interface(const interface_name& name) const 
+    const interface* data_holder::get_interface(const interface_name& name) const 
     {
         return &interfaces.at(name);
     }
 
-    component const * const data_holder::get_component(const component_name& name) const 
+    const component* data_holder::get_component(const component_name& name) const 
     {
         return &components.at(name);
     }
 
-    void data_holder::load_components(const component_reader& reader)
+    void data_holder::load_components(const component_reader&)
     {
     }
 
-    void data_holder::load_interfaces(const interface_reader& reader)
+    void data_holder::load_interfaces(const interface_reader&)
     {
     }
 }
