@@ -20,18 +20,18 @@ namespace threading
         nonblocking_popping_policy(std::queue<stored>&) 
         {}
 
-        bool available()
+        bool available() const
         {
             return true;
         }
 
-        void wait_until_ready(lock&)
+        void wait_until_ready(lock&, const bool&) const
         {}
 
-        void notify_action_available()
+        void notify_action_available() const
         {}
         
-        void notify_of_death()
+        void notify_of_death() const
         {}
     };
 
@@ -43,14 +43,15 @@ namespace threading
         blocking_popping_policy(std::queue<stored>& q) : queue(q)
         {}
 
-        bool available()
+        bool available() const
         {
             return !queue.empty();
         }
 
-        void wait_until_ready(lock& l)
+        void wait_until_ready(lock& l, const bool& is_queue_dead)
         {
-            condition.wait(l, std::bind(&this_type::available, this));
+            condition.wait(l, [&is_queue_dead, this]()
+                {return this->available() || is_queue_dead;});
         }
         
         void notify_action_available()
@@ -77,23 +78,23 @@ namespace threading
             TS_ASSERT(max_size == boost::none, "Cannot enforce maximum size of a queue where pushing is both nonblocking and nonfailing");
         }
 
-        bool available()
+        bool available() const
         {
             return true;
         }        
 
-        bool must_fail()
+        bool must_fail() const
         {
             return false;
         }
         
-        void wait_until_ready(lock&)
+        void wait_until_ready(lock&, const bool&) const
         {}
 
-        void notify_action_available()
+        void notify_action_available() const
         {}
 
-        void notify_of_death()
+        void notify_of_death() const
         {}        
     }; 
      
@@ -108,23 +109,23 @@ namespace threading
             max_size = allowed_size.get();
         }
 
-        bool available()
+        bool available() const
         {
             return queue.size() < max_size;
         }        
 
-        bool must_fail()
+        bool must_fail() const
         {
             return !available();
         }
         
-        void wait_until_ready(lock&)
+        void wait_until_ready(lock&, const bool&) const
         {}
 
-        void notify_action_available()
+        void notify_action_available() const
         {}
 
-        void notify_of_death()
+        void notify_of_death() const
         {}        
 
         std::queue<stored>& queue;
@@ -144,19 +145,19 @@ namespace threading
             max_size = allowed_size.get();
         }
 
-        bool available()
+        bool available() const
         {
             return queue.size() < max_size;
         }        
 
-        bool must_fail()
+        bool must_fail() const
         {
             return !available();
         }
         
-        void wait_until_ready(lock& l)
+        void wait_until_ready(lock& l, const bool& is_queue_dead)
         {
-            condition.wait(l, std::bind(&this_type::available, this));
+            condition.wait(l, [&is_queue_dead, this](){return this->available() || is_queue_dead;});
         }
 
         void notify_action_available()
@@ -189,8 +190,7 @@ namespace threading
         bool pop_front(stored& s)
         {
              typename popping_policy<stored>::lock l(queue_mutex);
-             while(!popping.available() && !is_dead)
-                 popping.wait_until_ready(l);
+             popping.wait_until_ready(l, is_dead);
 
              if(queue.empty())
                 return false;
@@ -223,8 +223,7 @@ namespace threading
         bool push_back_impl(value v)
         {
             typename pushing_policy<stored>::lock l(queue_mutex);
-            if(pushing.available() && !is_dead)
-                pushing.wait_until_ready(l);
+            pushing.wait_until_ready(l, is_dead);
 
             if(is_dead || pushing.must_fail())
                 return false;

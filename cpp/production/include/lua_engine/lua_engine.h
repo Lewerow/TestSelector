@@ -12,6 +12,7 @@
 #include <lua_engine/lua_state_default_deleter.h>
 #include <lua_engine/variable.h>
 #include <lua_engine/function.h>
+#include <lua_engine/cfunction.h>
 
 namespace lua
 {
@@ -19,6 +20,12 @@ namespace lua
 	{
 	public:
 		engine();
+
+        template <typename signature>
+        void load(cfunction<signature>& cfunc)
+        {
+            cfunc.load(machine.get());
+        }
 
 		void load(const std::string& code);
 		void load_file(const boost::filesystem::path& filename);

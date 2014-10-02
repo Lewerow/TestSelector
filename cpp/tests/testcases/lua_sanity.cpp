@@ -1,7 +1,6 @@
 #include <boost/test/auto_unit_test.hpp>
 
 #include <lua_engine/lua_engine.h>
-
 #include <lua_engine/variable_operators.h>
 
 struct lua_fixture
@@ -44,6 +43,20 @@ BOOST_AUTO_TEST_CASE(variable_is_same_after_roudtrip)
 	auto var = lua::make_variable("x", 4);
 	engine.push(var);
 	BOOST_CHECK_EQUAL(var, engine.get_variable<int>("x"));
+}
+
+BOOST_AUTO_TEST_CASE(variable_type_can_be_converted_to_string)
+{
+    auto var = lua::make_variable("x", 4);
+    engine.push(var);
+    BOOST_CHECK_EQUAL(std::string("4"), engine.get<std::string>("x"));
+}
+
+BOOST_AUTO_TEST_CASE(variable_type_can_be_converted_to_int)
+{
+    auto var = lua::make_variable("x", std::string("333"));
+    engine.push(var);
+    BOOST_CHECK_EQUAL(333, engine.get<int>("x"));
 }
 
 BOOST_AUTO_TEST_CASE(optional_roundtrip)
@@ -98,6 +111,18 @@ BOOST_AUTO_TEST_CASE(order_in_call_is_the_same)
 	BOOST_CHECK_EQUAL("9", sum);
 }
 
+int helper_cfunction(lua_State*)
+{
+    return 2;
+}
+
+BOOST_AUTO_TEST_CASE(cfunctions_can_be_called)
+{
+    auto f = lua::make_cfunction("f", helper_cfunction);
+    engine.load(f);
+    BOOST_CHECK_EQUAL(helper_cfunction(NULL), engine.call<int>("f"));
+}
+
 BOOST_AUTO_TEST_CASE(throws_on_non_existing_function_call)
 {
 	engine.load("function add_special(a,b) return 2*a+b end");
@@ -129,6 +154,8 @@ BOOST_AUTO_TEST_CASE(table_variable_roudtrip)
 	auto yy = engine.get_variable<std::string>("y.y.y.y");
 	BOOST_CHECK_EQUAL(yy.value(), "a45");
 }
+
+
 
 BOOST_AUTO_TEST_SUITE_END()
 BOOST_AUTO_TEST_SUITE_END()
