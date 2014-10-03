@@ -111,16 +111,16 @@ BOOST_AUTO_TEST_CASE(order_in_call_is_the_same)
 	BOOST_CHECK_EQUAL("9", sum);
 }
 
-int helper_cfunction(lua_State*)
+int helper_cfunction()
 {
     return 2;
 }
 
 BOOST_AUTO_TEST_CASE(cfunctions_can_be_called)
 {
-    auto f = lua::make_cfunction("f", helper_cfunction);
+    auto f = lua::make_cfunction<int>("f", std::function<int()>(helper_cfunction));
     engine.load(f);
-    BOOST_CHECK_EQUAL(helper_cfunction(NULL), engine.call<int>("f"));
+    BOOST_CHECK_EQUAL(helper_cfunction(), engine.call<int>("f"));
 }
 
 BOOST_AUTO_TEST_CASE(throws_on_non_existing_function_call)

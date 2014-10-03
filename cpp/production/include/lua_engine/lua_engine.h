@@ -21,10 +21,10 @@ namespace lua
 	public:
 		engine();
 
-        template <typename signature>
-        void load(cfunction<signature>& cfunc)
+        template <typename... varargs>
+        void load(cfunction<varargs...>& cfunc)
         {
-            cfunc.load(machine.get());
+            cfunc.insert_into(*this);
         }
 
 		void load(const std::string& code);
