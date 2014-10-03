@@ -23,8 +23,8 @@ namespace lua
 
         template <typename... varargs>
         void load(cfunction<varargs...>& cfunc)
-        {
-            cfunc.insert_into(*this);
+		{
+			push(lua::make_variable(cfunc.name(), cfunc));
         }
 
 		void load(const std::string& code);
