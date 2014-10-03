@@ -5,6 +5,10 @@
 
 struct lua_State;
 
+
+const int LUA_TRUE = 1;
+const int LUA_FALSE = 0;
+
 namespace lua
 {
 	enum type
@@ -19,6 +23,19 @@ namespace lua
 		luserdata = LUA_TUSERDATA,
 		lthread = LUA_TTHREAD
 	};
+
+	enum status_code
+	{
+		ok = LUA_OK,
+		yield = LUA_YIELD,
+		runtime_error = LUA_ERRRUN,
+		syntax_error = LUA_ERRSYNTAX,
+		memory_error = LUA_ERRMEM,
+		garbage_collector_error = LUA_ERRGCMM,
+		error_during_error_handling = LUA_ERRERR
+	};
+
+	typedef int status_code_wrapper; // required for compiling cfunctions
 
 	namespace helpers
 	{

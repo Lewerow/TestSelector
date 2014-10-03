@@ -11,6 +11,6 @@ struct assertion_failed
 	std::string what;
 };
 
-#define TS_ASSERT(x, msg) if(!(x)) throw assertion_failed(msg);
+#define TS_ASSERT(x, msg) while(!(x)){throw assertion_failed(msg);}
 
 #endif

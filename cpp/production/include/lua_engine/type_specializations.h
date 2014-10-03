@@ -5,8 +5,7 @@
 
 #include <lua.hpp>
 
-const int LUA_TRUE = 1;
-const int LUA_FALSE = 0;
+#include <lua_engine/basic_lua_helpers.h>
 
 namespace lua
 {

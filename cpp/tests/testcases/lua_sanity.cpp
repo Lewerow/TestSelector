@@ -111,6 +111,13 @@ BOOST_AUTO_TEST_CASE(order_in_call_is_the_same)
 	BOOST_CHECK_EQUAL("9", sum);
 }
 
+BOOST_AUTO_TEST_CASE(function_without_arguments_can_be_called)
+{
+	engine.load("function add_special() return 20 end");
+	auto result = engine.call<std::string>("add_special");
+	BOOST_CHECK_EQUAL("20", result);
+}
+
 int helper_cfunction()
 {
     return 2;
