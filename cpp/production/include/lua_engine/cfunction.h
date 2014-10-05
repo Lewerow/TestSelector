@@ -3,6 +3,7 @@
 
 #include <string>
 #include <functional>
+#include <type_traits>
 
 #include <boost/function_types/result_type.hpp>
 #include <boost/function_types/parameter_types.hpp>
@@ -16,18 +17,17 @@ struct lua_State;
 namespace lua
 {
 
-    template <typename ret, typename ... args>
-    static ret autocall(lua_State* machine, const std::function<ret(args...)>& f)
+    template <typename return_type, typename... arg_types>
+    static return_type autocall(lua_State* machine, const std::function<return_type(arg_types...)>& f)
     {
-        return f(pop<args>(machine)...);
+        return f(pop<arg_types>(machine)...);
     }
-
 
     template <typename signature>
     class cfunction
     {
         typedef cfunction<signature> this_type;
-        typedef typename boost::function_types::result_type<signature>::type result_type;
+        typedef typename std::function<signature>::result_type result_type;
     public:
     	cfunction(const std::string& new_name, const std::function<signature>& new_f) : name_(new_name), f(new_f)
         {}
@@ -60,16 +60,16 @@ namespace lua
 		std::function<signature> f;
     };
 	
-    template <typename signature>
-	lua::cfunction<signature> make_cfunction(const std::string& name, const std::function<signature>& f)
+    template <typename result_type, typename... arg_types>
+	lua::cfunction<result_type(arg_types...)> make_cfunction(const std::string& name, result_type (*f)(arg_types...))
     {
-		 return lua::cfunction<signature>(name, f);
+		 return lua::cfunction<result_type(arg_types...)>(name, f);
     }
 
-    template <typename signature>
-	lua::cfunction<signature> make_cfunction(const std::string& name, const signature& f)
+    template <typename result_type, typename class_type, typename... arg_types>
+    lua::cfunction<result_type(class_type*, arg_types...) > make_cfunction(const std::string& name, result_type (class_type::* f)(arg_types...))
     {
-		 return lua::cfunction<signature>(name, std::function<signature>(f));
+        return lua::cfunction<result_type(class_type*, arg_types...)>(name, std::mem_fn(f));
     }
 }
 

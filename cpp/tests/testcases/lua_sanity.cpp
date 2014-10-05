@@ -8,6 +8,16 @@ struct lua_fixture
 	lua::engine engine;
 };
 
+struct S
+{
+    int f(int a)
+    {
+        return 2*a + c;
+    }
+
+    int c;
+};
+    
 BOOST_AUTO_TEST_SUITE(libraries_sanity)
 BOOST_FIXTURE_TEST_SUITE(Lua, lua_fixture)
 
@@ -147,6 +157,34 @@ BOOST_AUTO_TEST_CASE(cfunction_with_arguments_can_be_called)
     auto f = lua::make_cfunction("sum", helper_cfunction_with_args);
     engine.load(f);
     BOOST_CHECK_EQUAL(helper_cfunction_with_args(2, 5), engine.call<int>("sum", 2, 5));
+}
+
+BOOST_AUTO_TEST_CASE(member_functions_can_be_called)
+{
+    S s;
+    s.c = 10;
+    auto f = lua::make_cfunction("f", &S::f);
+    s.c = 50;
+    engine.load(f);
+    
+   BOOST_CHECK_EQUAL(s.f(10), engine.call<int>("f", &s, 10));
+   
+   s.c = 100;
+   BOOST_CHECK_EQUAL(s.f(106), engine.call<int>("f", &s, 106));
+}
+
+BOOST_AUTO_TEST_CASE(bound_functions_work_well)
+{
+   S s;
+   s.c = 10;
+   
+//    auto f = lua::make_cfunction("f", std::bind(&S::f, std::ref(s)));
+//    engine.load(f);
+    
+//    BOOST_CHECK_EQUAL(s.f(100), engine.call<int>("f", 100));
+
+    s.c = 50;
+//    BOOST_CHECK_EQUAL(s.f(1000), engine.call<int>("f", 1000));
 }
 
 // lambdas are not yet supported
