@@ -118,17 +118,38 @@ BOOST_AUTO_TEST_CASE(function_without_arguments_can_be_called)
 	BOOST_CHECK_EQUAL("20", result);
 }
 
-int helper_cfunction()
+int helper_cfunction(void)
 {
     return 2;
 }
 
 BOOST_AUTO_TEST_CASE(cfunctions_can_be_called)
 {
-    auto f = lua::make_cfunction<int>("f", std::function<int()>(helper_cfunction));
+    auto f = lua::make_cfunction("f", helper_cfunction);
     engine.load(f);
     BOOST_CHECK_EQUAL(helper_cfunction(), engine.call<int>("f"));
 }
+
+int helper_cfunction_with_args(int a, int b)
+{
+    return a + b;
+}
+
+BOOST_AUTO_TEST_CASE(cfunction_with_arguments_can_be_called)
+{
+    auto f = lua::make_cfunction("sum", helper_cfunction_with_args);
+    engine.load(f);
+    BOOST_CHECK_EQUAL(helper_cfunction_with_args(2, 5), engine.call<int>("sum", 2, 5));
+}
+
+// lambdas are not yet supported
+/*BOOST_AUTO_TEST_CASE(lambda_ca_be_used_as_cfunction)
+{
+    auto f = lua::make_cfunction("g", []()->std::string{return "alamakota";});
+    engine.load(f);
+    BOOST_CHECK_EQUAL("alamakota", engine.call<std::string>("g"));
+}
+*/
 
 BOOST_AUTO_TEST_CASE(throws_on_non_existing_function_call)
 {

@@ -16,8 +16,6 @@ BOOST_AUTO_TEST_SUITE(threading_tests)
 BOOST_FIXTURE_TEST_SUITE(threadsafe_queue_sanity, queue_fixture)
 BOOST_AUTO_TEST_CASE(one_can_push_back_and_pop_front_queue_get_same)
 {
-    int* d = new int[10];
-    delete d;
     BOOST_CHECK(q.push_back(2));
     int a = 4;
     BOOST_CHECK(q.pop_front(a));

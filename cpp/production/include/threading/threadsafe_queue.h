@@ -179,7 +179,7 @@ namespace threading
     struct threadsafe_queue
     {
     public:
-        threadsafe_queue(boost::optional<std::size_t> max_size = boost::none) : pushing(max_size, queue), popping(queue), is_dead(false)
+        threadsafe_queue(boost::optional<std::size_t> max_size = boost::none) : is_dead(false), pushing(max_size, queue), popping(queue)
         {}
         
         ~threadsafe_queue()

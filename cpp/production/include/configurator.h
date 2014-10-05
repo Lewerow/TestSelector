@@ -3,7 +3,7 @@
 
 #include <boost/filesystem/path.hpp>
 
-#include <lua_engine/lua_engine.h>
+//#include <lua_engine/lua_engine.h>
 
 class configurator
 {
@@ -12,7 +12,7 @@ public:
 	~configurator();
 
 private:
-	lua::engine configuration_engine;
+//	lua::engine configuration_engine;
 };
 
 #endif

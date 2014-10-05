@@ -43,7 +43,8 @@ namespace lua
 			else
 			{
 				lua_pop(machine, 1);
-				throw std::runtime_error("Requested variable with wrong type: " + name());
+                std::string error_text = "Requested variable with wrong type: " + name();
+				throw std::runtime_error(error_text);
 			}
 
 			return *this;

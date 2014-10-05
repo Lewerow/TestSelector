@@ -21,8 +21,8 @@ namespace lua
 	public:
 		engine();
 
-        template <typename... varargs>
-        void load(cfunction<varargs...>& cfunc)
+        template <typename signature>
+        void load(const lua::cfunction<signature>& cfunc)
 		{
 			push(lua::make_variable(cfunc.name(), cfunc));
         }
