@@ -159,7 +159,23 @@ BOOST_AUTO_TEST_CASE(cfunction_with_arguments_can_be_called)
     BOOST_CHECK_EQUAL(helper_cfunction_with_args(2, 5), engine.call<int>("sum", 2, 5));
 }
 
-BOOST_AUTO_TEST_CASE(member_functions_can_be_called)
+BOOST_AUTO_TEST_CASE(member_functions_can_be_called_from_lua)
+{
+    S s;
+    s.c = 10;
+    auto f = lua::make_cfunction("f", &S::f);
+    s.c = 50;
+    engine.load(f);
+    engine.push(lua::make_variable("s", &s));
+    engine.load("function g() return f(s, 10) end");    
+
+    BOOST_CHECK_EQUAL(s.f(10), engine.call<int>("g"));
+   
+   s.c = 100;
+   BOOST_CHECK_EQUAL(s.f(106), engine.call<int>("f", &s, 106));
+}
+
+BOOST_AUTO_TEST_CASE(member_functions_can_be_called_from_cpp)
 {
     S s;
     s.c = 10;
@@ -227,8 +243,6 @@ BOOST_AUTO_TEST_CASE(table_variable_roudtrip)
 	auto yy = engine.get_variable<std::string>("y.y.y.y");
 	BOOST_CHECK_EQUAL(yy.value(), "a45");
 }
-
-
 
 BOOST_AUTO_TEST_SUITE_END()
 BOOST_AUTO_TEST_SUITE_END()
