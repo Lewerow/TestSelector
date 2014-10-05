@@ -31,6 +31,13 @@ BOOST_AUTO_TEST_CASE(variable_roundtrip)
 	BOOST_CHECK_EQUAL(x, 5);
 }
 
+BOOST_AUTO_TEST_CASE(pointers_can_be_loaded)
+{
+    std::unique_ptr<int> a(new int(600));
+    engine.push(lua::make_variable("a", a.get()));
+    BOOST_CHECK_EQUAL(*a, *engine.get<int*>("a"));
+}
+
 BOOST_AUTO_TEST_CASE(variable_roundtrip_for_strings)
 {
 	engine.push(lua::make_variable<std::string>("x", "alamakota"));

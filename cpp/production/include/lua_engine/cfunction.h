@@ -15,6 +15,14 @@ struct lua_State;
 
 namespace lua
 {
+
+    template <typename ret, typename ... args>
+    static ret autocall(lua_State* machine, const std::function<ret(args...)>& f)
+    {
+        return f(pop<args>(machine)...);
+    }
+
+
     template <typename signature>
     class cfunction
     {
@@ -39,12 +47,6 @@ namespace lua
 			//if it ever becomes needed, it's here already
             return 0;
 		}
-
-        template <typename ret, typename ... args>
-        static ret autocall(lua_State* machine, const std::function<ret(args...)>& f)
-        {
-            return f(pop<args>(machine)...);
-        }
 
 		static int caller(lua_State* machine)
 		{

@@ -64,8 +64,35 @@ namespace lua
 	};
 }
 
-
 #include <typeinfo>
+namespace lua
+{
+    template <typename T>
+    struct lua_stack_helper<T*>
+    {
+        static bool type_matches(lua_State* machine, int position)
+        {
+            return lua_isuserdata(machine, position) == LUA_TRUE || lua_islightuserdata(machine, position) == LUA_TRUE;
+        }
+
+        static T* pop(lua_State* machine)
+        {
+			T* result = reinterpret_cast<T*>(lua_touserdata(machine, -1));
+
+			lua_pop(machine, 1);
+			if (result == NULL)
+				throw std::bad_cast();
+
+			return result;
+        }
+
+        static void push(lua_State* machine, T* t)
+        {
+            lua_pushlightuserdata(machine, t);
+        } 
+    };
+}
+
 namespace lua
 {
 	template<>
@@ -88,7 +115,7 @@ namespace lua
 			return result;
 		}
 
-		static void push(lua_State* machine, const int& value)
+		static void push(lua_State* machine, int value)
 		{
 			lua_pushinteger(machine, value);
 		}
