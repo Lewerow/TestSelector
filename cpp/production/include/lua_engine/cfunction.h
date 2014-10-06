@@ -32,6 +32,9 @@ namespace lua
     	cfunction(const std::string& new_name, const std::function<signature>& new_f) : name_(new_name), f(new_f)
         {}
 
+		~cfunction()
+		{}
+
         const std::string& name() const
         {
             return name_;
@@ -44,7 +47,9 @@ namespace lua
 
 		static int finalizer(lua_State* machine)
 		{
-			//if it ever becomes needed, it's here already
+			// need to explicitly call destructor of object, as Lua manages only memory allocation
+			this_type* f = reinterpret_cast<this_type*>(lua_touserdata(machine, lua_upvalueindex(1)));
+			f->~cfunction();
             return 0;
 		}
 
@@ -100,7 +105,8 @@ namespace lua
 			luaL_newmetatable(machine, (value.name() + "_finalizer").c_str());
 			
 			lua_pushstring(machine, "__gc");
-			lua_pushcfunction(machine, (&lua::cfunction<signature>::finalizer));
+			lua_pushlightuserdata(machine, address);
+			lua_pushcclosure(machine, (&lua::cfunction<signature>::finalizer), 1);
 			lua_settable(machine, -3);
 
 			lua_pushstring(machine, "__call");
