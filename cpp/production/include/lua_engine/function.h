@@ -23,11 +23,11 @@ namespace lua
 			return name_;
 		}
 
-		template <typename T, typename... Args>
-		T call(Args... args)
+		template <typename T, typename... arg_types>
+		T call(arg_types&&... args)
 		{
 			lua_getglobal(machine(), name().c_str());
-			push_all(machine(), args...);
+			push_all(machine(), std::forward<arg_types>(args)...);
 			handle_call_error(machine(), lua_pcall(machine(), (sizeof...(args)), result_count<T>::value, 0));
 
 			return pop<T>(machine());

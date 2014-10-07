@@ -48,16 +48,16 @@ namespace lua
 			return var.insert_into(machine.get());
 		}
 
-		template <typename T, typename... Args>
-		T call(const std::string& name, Args... args)
+		template <typename T, typename... arg_types>
+		T call(const std::string& name, arg_types&&... args)
 		{
-			return function(name, machine.get()).call<T>(args...);
+			return function(name, machine.get()).call<T>(std::forward<arg_types>(args)...);
 		}
 		
-		template <typename T, typename... Args>
-		variable<T> call_variable(const std::string& name, Args... args)
+		template <typename T, typename... arg_types>
+		variable<T> call_variable(const std::string& name, arg_types&&... args)
 		{
-			return variable<T>("", call(name, args...));
+			return variable<T>("", call(name, std::forward<arg_types>(args)...));
 		}
 
 		// will be provided later, if needed

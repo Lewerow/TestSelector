@@ -76,6 +76,12 @@ namespace lua
     {
         return lua::cfunction<result_type(class_type*, arg_types...)>(name, std::mem_fn(f));
     }
+
+	template <typename result_type, typename... arg_types, typename functor_type>
+	lua::cfunction<result_type(arg_types...)> make_cfunction(const std::string& name, functor_type&& f)
+	{
+		return lua::cfunction<result_type(arg_types...)>(name, std::function<result_type(arg_types...)>(std::forward<functor_type>(f)));
+	}
 }
 
 namespace lua

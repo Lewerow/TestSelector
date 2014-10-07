@@ -189,28 +189,29 @@ BOOST_AUTO_TEST_CASE(member_functions_can_be_called_from_cpp)
    BOOST_CHECK_EQUAL(s.f(106), engine.call<int>("f", &s, 106));
 }
 
-BOOST_AUTO_TEST_CASE(bound_functions_work_well)
+BOOST_AUTO_TEST_CASE(lambda_can_be_used_as_cfunction_but_require_explicit_template_parameters)
 {
-   S s;
-   s.c = 10;
-   
-//    auto f = lua::make_cfunction("f", std::bind(&S::f, std::ref(s)));
-//    engine.load(f);
-    
-//    BOOST_CHECK_EQUAL(s.f(100), engine.call<int>("f", 100));
+	auto g = [](int i) -> int{return 2 * i; };
+	auto f = lua::make_cfunction<int, int>("f", g);
+	engine.load(f);
 
-    s.c = 50;
-//    BOOST_CHECK_EQUAL(s.f(1000), engine.call<int>("f", 1000));
+	BOOST_CHECK_EQUAL(g(100), engine.call<int>("f", 100));
+	BOOST_CHECK_EQUAL(g(1000), engine.call<int>("f", 1000));
 }
 
-// lambdas are not yet supported
-/*BOOST_AUTO_TEST_CASE(lambda_ca_be_used_as_cfunction)
+BOOST_AUTO_TEST_CASE(bound_functions_can_be_used_as_cfunctions_but_require_explicit_template_parameters)
 {
-    auto f = lua::make_cfunction("g", []()->std::string{return "alamakota";});
+	S s;
+	s.c = 100;
+
+	auto f = lua::make_cfunction<int, int>("f", std::bind(&S::f, &s, std::placeholders::_1));
     engine.load(f);
-    BOOST_CHECK_EQUAL("alamakota", engine.call<std::string>("g"));
+	BOOST_CHECK_EQUAL(s.f(100), engine.call<int>("f", 100));
+	
+	s.c = 1000;
+	BOOST_CHECK_EQUAL(s.f(100), engine.call<int>("f", 100));
 }
-*/
+
 
 BOOST_AUTO_TEST_CASE(throws_on_non_existing_function_call)
 {
