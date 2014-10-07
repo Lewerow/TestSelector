@@ -1,0 +1,11 @@
+#ifndef LUA_METATABLE_mdowmdiowqd98234jf4u3hfsdjkjsaklxjcwqoidj9823f89745hfrjkdfjsojwqe09dj32uhdewkjdwjdewjdwej
+#define LUA_METATABLE_mdowmdiowqd98234jf4u3hfsdjkjsaklxjcwqoidj9823f89745hfrjkdfjsojwqe09dj32uhdewkjdwjdewjdwej
+
+#include <lua_engine/table.h>
+
+namespace lua
+{
+	typedef lua::table metatable;
+}
+
+#endif

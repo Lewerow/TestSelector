@@ -6,6 +6,7 @@
 #include <lua.hpp>
 
 #include <result_count.h>
+
 #include <lua_engine/type_specializations.h>
 
 namespace lua

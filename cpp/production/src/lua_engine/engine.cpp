@@ -1,7 +1,7 @@
 #include <exception>
 
 #include <ts_assert.h>
-#include <lua_engine/lua_engine.h>
+#include <lua_engine/engine.h>
 #include <lua_engine/lua_exceptions.h>
 
 namespace
@@ -42,6 +42,11 @@ namespace lua
 	void engine::load(const std::string& code)
 	{
 		handle_lua_loading_error_code(machine.get(), luaL_dostring(machine.get(), code.c_str()));
+	}
+
+	void engine::load(const lua::entity& entity)
+	{
+		entity.insert_into(machine.get());
 	}
 
 	void engine::load_file(const boost::filesystem::path& filename)

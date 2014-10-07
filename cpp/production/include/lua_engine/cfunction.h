@@ -10,6 +10,7 @@
 
 #include <lua_engine/basic_lua_helpers.h>
 #include <lua_engine/variable.h>
+#include <lua_engine/entity.h>
 #include <lua_engine/type_specializations.h>
 
 struct lua_State;
@@ -23,46 +24,46 @@ namespace lua
         return f(pop<arg_types>(machine)...);
     }
 
-    template <typename signature>
-    class cfunction
-    {
-        typedef cfunction<signature> this_type;
-        typedef typename std::function<signature>::result_type result_type;
-    public:
-    	cfunction(const std::string& new_name, const std::function<signature>& new_f) : name_(new_name), f(new_f)
-        {}
+	template <typename signature>
+	class cfunction_impl
+	{
+	public:
 
-		~cfunction()
+		cfunction_impl(std::function<signature>&& f_) : f(f_)
 		{}
-
-        const std::string& name() const
-        {
-            return name_;
-        }
-
+		
 		const std::function<signature>& functor() const
-        {
-            return f;
-        }
+		{
+			return f;
+		}
+
+	private:
+		std::function<signature> f;
+	};
+
+    template <typename signature>
+	class cfunction : public lua::variable<lua::cfunction<signature>& >, public lua::cfunction_impl<signature>
+    {
+		typedef cfunction<signature> this_type;
+		typedef typename std::function<signature>::result_type result_type;
+    public:
+		cfunction(const std::string& name, std::function<signature>&& f) : variable(name, *this), cfunction_impl(std::forward<std::function<signature> >(f))
+        {}
 
 		static int finalizer(lua_State* machine)
 		{
 			// need to explicitly call destructor of object, as Lua manages only memory allocation
 			this_type* f = reinterpret_cast<this_type*>(lua_touserdata(machine, lua_upvalueindex(1)));
 			f->~cfunction();
-            return 0;
+			return 0;
 		}
 
 		static int caller(lua_State* machine)
 		{
-            this_type* f = reinterpret_cast<this_type*>(lua_touserdata(machine, lua_upvalueindex(1)));
+			this_type* f = reinterpret_cast<this_type*>(lua_touserdata(machine, lua_upvalueindex(1)));
 			push(machine, autocall(machine, f->functor()));
-	    	return lua::result_count<result_type>::value;
+			return lua::result_count<result_type>::value;
 		}
-
-    private:
-		std::string name_;
-		std::function<signature> f;
     };
 	
     template <typename result_type, typename... arg_types>

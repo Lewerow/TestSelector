@@ -1,6 +1,6 @@
 #include <boost/test/auto_unit_test.hpp>
 
-#include <lua_engine/lua_engine.h>
+#include <lua_engine/engine.h>
 #include <lua_engine/variable_operators.h>
 
 struct lua_fixture
@@ -36,7 +36,7 @@ BOOST_AUTO_TEST_CASE(variable_loading_from_string)
 
 BOOST_AUTO_TEST_CASE(variable_roundtrip)
 {
-	engine.push(lua::make_variable("x", 5));
+	engine.load(lua::make_variable("x", 5));
 	int x = engine.get<int>("x");
 	BOOST_CHECK_EQUAL(x, 5);
 }
@@ -44,13 +44,13 @@ BOOST_AUTO_TEST_CASE(variable_roundtrip)
 BOOST_AUTO_TEST_CASE(pointers_can_be_loaded)
 {
     std::unique_ptr<int> a(new int(600));
-    engine.push(lua::make_variable("a", a.get()));
+	engine.load(lua::make_variable("a", a.get()));
     BOOST_CHECK_EQUAL(*a, *engine.get<int*>("a"));
 }
 
 BOOST_AUTO_TEST_CASE(variable_roundtrip_for_strings)
 {
-	engine.push(lua::make_variable<std::string>("x", "alamakota"));
+	engine.load(lua::make_variable<std::string>("x", "alamakota"));
 	std::string x = engine.get<std::string>("x");
 	BOOST_CHECK_EQUAL(x, "alamakota");
 }
@@ -58,31 +58,31 @@ BOOST_AUTO_TEST_CASE(variable_roundtrip_for_strings)
 BOOST_AUTO_TEST_CASE(variable_is_same_after_roudtrip)
 {
 	auto var = lua::make_variable("x", 4);
-	engine.push(var);
+	engine.load(var);
 	BOOST_CHECK_EQUAL(var, engine.get_variable<int>("x"));
 }
 
 BOOST_AUTO_TEST_CASE(variable_type_can_be_converted_to_string)
 {
     auto var = lua::make_variable("x", 4);
-    engine.push(var);
+	engine.load(var);
     BOOST_CHECK_EQUAL(std::string("4"), engine.get<std::string>("x"));
 }
 
 BOOST_AUTO_TEST_CASE(variable_type_can_be_converted_to_int)
 {
     auto var = lua::make_variable("x", std::string("333"));
-    engine.push(var);
+	engine.load(var);
     BOOST_CHECK_EQUAL(333, engine.get<int>("x"));
 }
 
 BOOST_AUTO_TEST_CASE(optional_roundtrip)
 {
-	engine.push(lua::make_variable("x", boost::optional<std::string>()));
+	engine.load(lua::make_variable("x", boost::optional<std::string>()));
 	BOOST_CHECK(!engine.get<boost::optional<int> >("x").is_initialized());
 	BOOST_CHECK(!engine.get<boost::optional<std::string> >("y").is_initialized());
 
-	engine.push(lua::make_variable("y", 5));
+	engine.load(lua::make_variable("y", 5));
 	auto var = engine.get<boost::optional<int> >("y");
 	BOOST_CHECK(var.is_initialized());
 	BOOST_CHECK_EQUAL(var.get(), 5); 
@@ -166,7 +166,7 @@ BOOST_AUTO_TEST_CASE(member_functions_can_be_called_from_lua)
     auto f = lua::make_cfunction("f", &S::f);
     s.c = 50;
     engine.load(f);
-    engine.push(lua::make_variable("s", &s));
+	engine.load(lua::make_variable("s", &s));
     engine.load("function g() return f(s, 10) end");    
 
     BOOST_CHECK_EQUAL(s.f(10), engine.call<int>("g"));
@@ -230,11 +230,11 @@ BOOST_AUTO_TEST_CASE(tables_can_be_queried_as_variables)
 
 BOOST_AUTO_TEST_CASE(table_variable_roudtrip)
 {
-	engine.push(lua::make_variable("x.x", 5));
+	engine.load(lua::make_variable("x.x", 5));
 	auto x = engine.get<int>("x.x");
 	BOOST_CHECK_EQUAL(x, 5);
 
-	engine.push(lua::make_variable<std::string>("y.y.y.y", "a45"));
+	engine.load(lua::make_variable<std::string>("y.y.y.y", "a45"));
 	auto y = engine.get<std::string>("y.y.y.y");
 	BOOST_CHECK_EQUAL(y, "a45");
 
@@ -243,6 +243,14 @@ BOOST_AUTO_TEST_CASE(table_variable_roudtrip)
 
 	auto yy = engine.get_variable<std::string>("y.y.y.y");
 	BOOST_CHECK_EQUAL(yy.value(), "a45");
+}
+
+BOOST_AUTO_TEST_CASE(tables_can_be_created)
+{
+	lua::table tab("x");
+	engine.load(tab);
+
+
 }
 
 BOOST_AUTO_TEST_SUITE_END()

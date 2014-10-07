@@ -13,6 +13,7 @@
 #include <lua_engine/variable.h>
 #include <lua_engine/function.h>
 #include <lua_engine/cfunction.h>
+#include <lua_engine/table.h>
 
 namespace lua
 {
@@ -24,10 +25,17 @@ namespace lua
         template <typename signature>
         void load(const lua::cfunction<signature>& cfunc)
 		{
-			push(lua::make_variable(cfunc.name(), cfunc));
+			load(lua::make_variable(cfunc.name(), cfunc));
         }
 
+		template <typename T>
+		void load(const variable<T>& var)
+		{
+			return var.insert_into(machine.get());
+		}
+
 		void load(const std::string& code);
+		void load(const lua::entity& entity);
 		void load_file(const boost::filesystem::path& filename);
 		
 		template <typename T>
@@ -40,12 +48,6 @@ namespace lua
 		T get(const std::string& varname)
 		{
 			return variable<T>(varname).get_value_from(machine.get()).value();
-		}
-
-		template <typename T>
-		void push(const variable<T>& var)
-		{
-			return var.insert_into(machine.get());
 		}
 
 		template <typename T, typename... arg_types>

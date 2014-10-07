@@ -13,20 +13,22 @@
 #include <lua.hpp>
 
 #include <ts_assert.h>
+
 #include <lua_engine/type_specializations.h>
 #include <lua_engine/basic_lua_helpers.h>
+#include <lua_engine/entity.h>
 
 namespace lua
 {
 	template <typename T>
-	class variable
+	class variable : public lua::entity
 	{
 	public:
 
-		variable(const std::string& varname, T value) : path(make_path(varname)), val{value}
+		variable(const std::string& varname, T value) : entity(varname), path(make_path(varname)), val{value}
 		{}
 
-		variable(const std::string& varname) : path(make_path(varname)), val(boost::none)
+		variable(const std::string& varname) : entity(varname), path(make_path(varname)), val(boost::none)
 		{}
 
 		variable& get_value_from(lua_State* machine)
@@ -50,7 +52,7 @@ namespace lua
 			return *this;
 		}
 
-		void insert_into(lua_State* machine) const
+		virtual void insert_into(lua_State* machine) const
 		{
 			helpers::scoped::no_stack_size_change_verifier verifier(machine);
 
@@ -96,7 +98,7 @@ namespace lua
 			return std::accumulate(path.begin() + 1, path.end(), *path.begin(), [](const std::string& path, const std::string& piece){return path + "." + piece; });
 		}
 
-		variable(const variable<T>& rhs) : path(make_path(rhs.name())), val(rhs.value())
+		variable(const variable<T>& rhs) : entity(rhs.name()), path(make_path(rhs.name())), val(rhs.value())
 		{}
 
 		variable<T>& operator= (const variable<T>& rhs)
