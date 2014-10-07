@@ -24,30 +24,13 @@ namespace lua
         return f(pop<arg_types>(machine)...);
     }
 
-	template <typename signature>
-	class cfunction_impl
-	{
-	public:
-
-		cfunction_impl(std::function<signature>&& f_) : f(f_)
-		{}
-		
-		const std::function<signature>& functor() const
-		{
-			return f;
-		}
-
-	private:
-		std::function<signature> f;
-	};
-
     template <typename signature>
-	class cfunction : public lua::variable<lua::cfunction<signature>& >, public lua::cfunction_impl<signature>
+	class cfunction : public lua::variable<lua::cfunction<signature>& >
     {
 		typedef cfunction<signature> this_type;
 		typedef typename std::function<signature>::result_type result_type;
     public:
-		cfunction(const std::string& name, std::function<signature>&& f) : variable(name, *this), cfunction_impl(std::forward<std::function<signature> >(f))
+		cfunction(const std::string& name, std::function<signature>&& f_) : variable(name, *this), f(f_)
         {}
 
 		static int finalizer(lua_State* machine)
@@ -64,6 +47,13 @@ namespace lua
 			push(machine, autocall(machine, f->functor()));
 			return lua::result_count<result_type>::value;
 		}
+
+		const std::function<signature>& functor() const
+		{
+			return f;
+		}
+	private:
+		std::function<signature> f;
     };
 	
     template <typename result_type, typename... arg_types>
