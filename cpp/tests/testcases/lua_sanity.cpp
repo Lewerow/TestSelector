@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_CASE(variable_is_same_after_roudtrip)
 {
 	auto var = lua::make_variable("x", 4);
 	engine.load(var);
-	BOOST_CHECK_EQUAL(var, engine.get_variable<int>("x"));
+	BOOST_CHECK_EQUAL(var.value(), engine.get<int>("x"));
 }
 
 BOOST_AUTO_TEST_CASE(variable_type_can_be_converted_to_string)
@@ -71,9 +71,22 @@ BOOST_AUTO_TEST_CASE(variable_type_can_be_converted_to_string)
 
 BOOST_AUTO_TEST_CASE(variable_type_can_be_converted_to_int)
 {
-    auto var = lua::make_variable("x", std::string("333"));
+	auto var = lua::make_variable("x", std::string("333"));
 	engine.load(var);
-    BOOST_CHECK_EQUAL(333, engine.get<int>("x"));
+	BOOST_CHECK_EQUAL(333, engine.get<int>("x"));
+}
+
+BOOST_AUTO_TEST_CASE(types_are_preserved_in_lua)
+{
+	engine.load(lua::make_variable("x", 333));
+	BOOST_CHECK_EQUAL(lua::lnumber, engine.typeof("x"));
+	BOOST_CHECK_EQUAL(333, engine.get<int>("x"));
+
+	engine.load(lua::make_variable<std::string>("y", "333"));
+	BOOST_CHECK_EQUAL(lua::lstring, engine.typeof("y"));
+	BOOST_CHECK_EQUAL("333", engine.get<std::string>("y"));
+
+	BOOST_CHECK_EQUAL(engine.get<int>("x"), engine.get<int>("y"));
 }
 
 BOOST_AUTO_TEST_CASE(optional_roundtrip)
@@ -238,17 +251,18 @@ BOOST_AUTO_TEST_CASE(table_variable_roudtrip)
 	auto y = engine.get<std::string>("y.y.y.y");
 	BOOST_CHECK_EQUAL(y, "a45");
 
-	auto xx = engine.get_variable<int>("x.x");
-	BOOST_CHECK_EQUAL(xx.value(), 5);
+	auto xx = engine.get<int>("x.x");
+	BOOST_CHECK_EQUAL(xx, 5);
 
-	auto yy = engine.get_variable<std::string>("y.y.y.y");
-	BOOST_CHECK_EQUAL(yy.value(), "a45");
+	auto yy = engine.get<std::string>("y.y.y.y");
+	BOOST_CHECK_EQUAL(yy, "a45");
 }
 
 BOOST_AUTO_TEST_CASE(tables_can_be_created)
 {
 	lua::table tab("x");
 	engine.load(tab);
+
 
 
 }

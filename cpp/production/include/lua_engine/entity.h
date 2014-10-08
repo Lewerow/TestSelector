@@ -1,9 +1,10 @@
 #ifndef LUA_ENTITY_mfewoifm8934jg5u4gjfdvmlksmdcksmwdi23d9843jfsdflksdjlfkwejrdo23jrfi34jfe
 #define LUA_ENTITY_mfewoifm8934jg5u4gjfdvmlksmdcksmwdi23d9843jfsdflksdjlfkwejrdo23jrfi34jfe
 
-#include <string>
+#include <lua_engine/basic_lua_helpers.h>
 
-struct lua_State;
+#include <string>
+#include <vector>
 
 namespace lua
 {
@@ -13,12 +14,15 @@ namespace lua
 		entity(const std::string& name);
 		virtual ~entity();
 
-		virtual void insert_into(lua_State* machine) const = 0;
+		virtual void insert_into(lua_State* machine) const;
 
-		const std::string& name() const;
 
+		std::string name() const;
+		lua::type type(lua_State* machine) const;
+		void fetch_on_stack(lua_State* machine) const;
+
+		std::vector<std::string> path;
 	private:
-		std::string name_;
 	};
 }
 

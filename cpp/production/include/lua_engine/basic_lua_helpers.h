@@ -1,10 +1,11 @@
 #ifndef BASIC_LUA_HELPERS_H_MOiewmkcvi9erjg98u54fgui4rjnedsmofk3q2d9jfkgnvewopfkopfkiregvurejkdfdsjflkdsjf
 #define BASIC_LUA_HELPERS_H_MOiewmkcvi9erjg98u54fgui4rjnedsmofk3q2d9jfkgnvewopfkopfkiregvurejkdfdsjflkdsjf
 
+#include <lua.hpp>
+
 #include <ts_assert.h>
 
 struct lua_State;
-
 
 const int LUA_TRUE = 1;
 const int LUA_FALSE = 0;

@@ -53,4 +53,9 @@ namespace lua
 	{
 		handle_lua_loading_error_code(machine.get(), luaL_dofile(machine.get(), filename.string().c_str()));
 	}
+
+	lua::type engine::typeof(const std::string& varname)
+	{
+		return entity(varname).type(machine.get());
+	}
 }

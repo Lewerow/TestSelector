@@ -8,8 +8,6 @@
 #include <numeric>
 
 #include <boost/optional.hpp>
-#include <boost/algorithm/string/split.hpp>
-
 #include <lua.hpp>
 
 #include <ts_assert.h>
@@ -25,10 +23,10 @@ namespace lua
 	{
 	public:
 
-		variable(const std::string& varname, T value) : entity(varname), path(make_path(varname)), val{value}
+		variable(const std::string& varname, T value) : entity(varname), val(value)
 		{}
 
-		variable(const std::string& varname) : entity(varname), path(make_path(varname)), val(boost::none)
+		variable(const std::string& varname) : entity(varname), val(boost::none)
 		{}
 
 		variable& get_value_from(lua_State* machine)
@@ -81,24 +79,7 @@ namespace lua
 			return val.get();
 		}
 
-		lua::type type(lua_State* machine) const
-		{
-			helpers::scoped::no_stack_size_change_verifier verifier(machine);
-			helpers::scoped::pop_n(machine, path.size());
-			fetch_on_stack();
-			return lua::type(lua_type(machine, -1));
-
-		}
-
-		std::string name() const
-		{
-			if (path.empty())
-				return "";
-
-			return std::accumulate(path.begin() + 1, path.end(), *path.begin(), [](const std::string& path, const std::string& piece){return path + "." + piece; });
-		}
-
-		variable(const variable<T>& rhs) : entity(rhs.name()), path(make_path(rhs.name())), val(rhs.value())
+		variable(const variable<T>& rhs) : entity(rhs.name()), val(rhs.value())
 		{}
 
 		variable<T>& operator= (const variable<T>& rhs)
@@ -108,27 +89,7 @@ namespace lua
 		}
 
 	private:
-		std::vector<std::string> path;
 		boost::optional<T> val;
-
-		static std::vector<std::string> make_path(const std::string& new_name)
-		{
-			std::vector<std::string> path;
-			boost::split(path, new_name, [](char c){return (c == '.'); });
-			return path;
-		}
-
-		void fetch_on_stack(lua_State* machine)
-		{
-			lua_getglobal(machine, path[0].c_str());
-			for (std::size_t i = 1; i < path.size(); ++i)
-			{
-				if (!lua_istable(machine, -1))
-					throw std::runtime_error("Unexpected type where table expected");
-
-				lua_getfield(machine, -1, path[i].c_str());
-			}
-		}
 	};
 
 	template <typename T>
