@@ -45,6 +45,7 @@ BOOST_AUTO_TEST_CASE(pointers_can_be_loaded)
 {
     std::unique_ptr<int> a(new int(600));
 	engine.load(lua::make_variable("a", a.get()));
+    BOOST_CHECK_EQUAL(lua::llightuserdata, engine.typeof("a"));
     BOOST_CHECK_EQUAL(*a, *engine.get<int*>("a"));
 }
 
@@ -172,6 +173,17 @@ BOOST_AUTO_TEST_CASE(cfunction_with_arguments_can_be_called)
     BOOST_CHECK_EQUAL(helper_cfunction_with_args(2, 5), engine.call<int>("sum", 2, 5));
 }
 
+BOOST_AUTO_TEST_CASE(multiple_cfunctions_may_be_registered_with_same_name_last_one_stands)
+{
+    auto f = lua::make_cfunction("sum", helper_cfunction);
+    auto f2 = lua::make_cfunction("sum", helper_cfunction_with_args);
+
+    engine.load(f);
+    engine.load(f2);
+
+    BOOST_CHECK_EQUAL(2, engine.call<int>("sum", 2, 0));
+}
+
 BOOST_AUTO_TEST_CASE(member_functions_can_be_called_from_lua)
 {
     S s;
@@ -219,6 +231,7 @@ BOOST_AUTO_TEST_CASE(bound_functions_can_be_used_as_cfunctions_but_require_expli
 
 	auto f = lua::make_cfunction<int, int>("f", std::bind(&S::f, &s, std::placeholders::_1));
     engine.load(f);
+    BOOST_CHECK_EQUAL(lua::luserdata, engine.typeof("f"));
 	BOOST_CHECK_EQUAL(s.f(100), engine.call<int>("f", 100));
 	
 	s.c = 1000;
@@ -229,6 +242,7 @@ BOOST_AUTO_TEST_CASE(bound_functions_can_be_used_as_cfunctions_but_require_expli
 BOOST_AUTO_TEST_CASE(throws_on_non_existing_function_call)
 {
 	engine.load("function add_special(a,b) return 2*a+b end");
+    BOOST_CHECK_EQUAL(lua::lfunction, engine.typeof("add_special"));
 	BOOST_CHECK_THROW(engine.call<std::string>("add", 2, 5), std::runtime_error);
 }
 
@@ -241,7 +255,7 @@ BOOST_AUTO_TEST_CASE(tables_can_be_queried_as_variables)
 	BOOST_CHECK_EQUAL(engine.get<std::string>("y.y.y.y"), "45");
 }
 
-BOOST_AUTO_TEST_CASE(table_variable_roudtrip)
+BOOST_AUTO_TEST_CASE(table_variable_roudtrip_with_multiple_access)
 {
 	engine.load(lua::make_variable("x.x", 5));
 	auto x = engine.get<int>("x.x");
@@ -250,8 +264,13 @@ BOOST_AUTO_TEST_CASE(table_variable_roudtrip)
 	engine.load(lua::make_variable<std::string>("y.y.y.y", "a45"));
 	auto y = engine.get<std::string>("y.y.y.y");
 	BOOST_CHECK_EQUAL(y, "a45");
+    BOOST_CHECK_EQUAL(lua::ltable, engine.typeof("y"));
+    BOOST_CHECK_EQUAL(lua::ltable, engine.typeof("y.y"));
+    BOOST_CHECK_EQUAL(lua::ltable, engine.typeof("y.y.y"));
+    BOOST_CHECK_EQUAL(lua::lstring, engine.typeof("y.y.y.y"));
 
 	auto xx = engine.get<int>("x.x");
+    BOOST_CHECK_EQUAL(lua::ltable, engine.typeof("x"));
 	BOOST_CHECK_EQUAL(xx, 5);
 
 	auto yy = engine.get<std::string>("y.y.y.y");
@@ -263,8 +282,7 @@ BOOST_AUTO_TEST_CASE(tables_can_be_created)
 	lua::table tab("x");
 	engine.load(tab);
 
-
-
+//#    BOOST_CHECK_EQUAL(lua::ltable, engine.typeof("x"));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -16,7 +16,7 @@ namespace lua
 	{
 		lnil = LUA_TNIL,
 		lboolean = LUA_TBOOLEAN,
-		llight_userdata = LUA_TLIGHTUSERDATA,
+		llightuserdata = LUA_TLIGHTUSERDATA,
 		lnumber = LUA_TNUMBER,
 		lstring = LUA_TSTRING,
 		ltable = LUA_TTABLE,
@@ -68,10 +68,20 @@ namespace lua
 				pop_n(lua_State* lua_machine, int n_);
 				~pop_n();
 
-			private:
+			protected:
 				lua_State* machine;
 				int n;
 			};
+
+            class pop_at_most_n : private pop_n
+            {
+            public:
+                pop_at_most_n(lua_State* lua_machine, int n_);
+                ~pop_at_most_n();
+
+            protected:
+                int start_top;
+            };
 		}
 
 		void get_or_create_global_table(lua_State* machine, const std::string& table_name);

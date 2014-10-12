@@ -7,6 +7,7 @@
 
 #include <boost/function_types/result_type.hpp>
 #include <boost/function_types/parameter_types.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include <lua_engine/basic_lua_helpers.h>
 #include <lua_engine/variable.h>
@@ -25,12 +26,13 @@ namespace lua
     }
 
     template <typename signature>
-	class cfunction : public lua::variable<lua::cfunction<signature>& >
+	class cfunction : public lua::variable<lua::cfunction<signature>&>
     {
 		typedef cfunction<signature> this_type;
 		typedef typename std::function<signature>::result_type result_type;
+        typedef lua::variable<lua::cfunction<signature>&> variable_parent;
     public:
-		cfunction(const std::string& name, std::function<signature>&& f_) : variable(name, *this), f(f_)
+		cfunction(const std::string& name, std::function<signature>&& f_) : variable_parent(name, *this), f(f_)
         {}
 
 		static int finalizer(lua_State* machine)
@@ -94,12 +96,26 @@ namespace lua
 			return f;
 		}
 
+        static std::string make_metatable(lua_State* machine, const std::string& varname)
+        {
+            std::string name_base = varname + "_metatable_";          
+            int counter = 0;
+            std::string unique_name_proposition = name_base;
+            while(luaL_newmetatable(machine, unique_name_proposition.c_str()) == LUA_FALSE)
+            {
+                unique_name_proposition = name_base + boost::lexical_cast<std::string>(counter++);
+                lua_pop(machine, 1);            
+            }
+
+            return unique_name_proposition;
+        }
+
 		static void push(lua_State* machine, const lua::cfunction<signature>& value)
 		{
 			void* address = lua_newuserdata(machine, sizeof(value));
 			new (address)lua::cfunction<signature>(value);
-			
-			luaL_newmetatable(machine, (value.name() + "_finalizer").c_str());
+	        
+            make_metatable(machine, value.name());	
 			
 			lua_pushstring(machine, "__gc");
 			lua_pushlightuserdata(machine, address);

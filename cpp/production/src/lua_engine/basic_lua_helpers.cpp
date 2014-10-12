@@ -10,13 +10,24 @@ namespace lua
 	{
 		namespace scoped
 		{
-			pop_n::pop_n(lua_State* lua_machine, int n_) : machine(lua_machine), n(n_)
+   			pop_n::pop_n(lua_State* lua_machine, int n_) : machine(lua_machine), n(n_)
 			{}
 
 			pop_n::~pop_n()
 			{
 				lua_pop(machine, n);
 			}
+        
+            pop_at_most_n::pop_at_most_n(lua_State* lua_machine, int n_) : pop_n(lua_machine, n_), start_top(lua_gettop(lua_machine))
+            {}
+
+            pop_at_most_n::~pop_at_most_n()
+            {
+                int new_elements_on_stack_count = lua_gettop(machine) - start_top;
+                n = (n > new_elements_on_stack_count) ? new_elements_on_stack_count : n;                
+
+                TS_ASSERT(n >= 0, "More elements already taken from the stack than required to pop!");
+            }
 		}
 
 		namespace
