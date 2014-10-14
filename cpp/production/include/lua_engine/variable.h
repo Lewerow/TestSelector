@@ -42,35 +42,30 @@ namespace lua
 				val = pop<T>(machine);
 			else
 			{
-				lua_pop(machine, 1);
-                std::string error_text = "Requested variable with wrong type: " + name();
+				helpers::scoped::pop_n popper(machine, 1);
+				std::string error_text = "Requested variable (" + name() + ") with wrong type. Lua type: " + boost::lexical_cast<std::string>(lua::type(lua_type(machine, -1)));
 				throw std::runtime_error(error_text);
 			}
 
 			return *this;
 		}
-
+		
 		virtual void insert_into(lua_State* machine) const
 		{
-			helpers::scoped::no_stack_size_change_verifier verifier(machine);
+			helpers::scoped::exact_stack_size_change<1> verifier(machine);
 
-			if(path.size() > 1)
+			if (path.size() > 1)
 			{
-				helpers::scoped::pop_n popper(machine, path.size() - 1);
-				helpers::get_or_create_global_table(machine, path[0]);
-				
+				helpers::acquire_table(machine, path[0]);
+
 				for (std::size_t i = 1; i < path.size() - 1; ++i)
-					helpers::get_or_create_table_as_field(machine, path[i]);
+					helpers::acquire_field(machine, path[i], lua::ltable);
+			}
 
-				push(machine, path.back().c_str());
-				push(machine, value());
-				lua_settable(machine, -3);
-			}
-			else
-			{
-				push(machine, value());
-				lua_setglobal(machine, name().c_str());
-			}
+			push(machine, value());
+
+			for (std::size_t i = path.size() - 1; i > 0; --i)
+				lua_setfield(machine, -2, path[i].c_str());
 		}
 
 		const T& value() const

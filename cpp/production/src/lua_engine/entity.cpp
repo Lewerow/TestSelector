@@ -3,6 +3,7 @@
 #include <numeric>
 
 #include <boost/algorithm/string/split.hpp>
+#include <boost/lexical_cast.hpp>
 
 namespace
 {
@@ -41,7 +42,7 @@ namespace lua
 		for (std::size_t i = 1; i < path.size(); ++i)
 		{
 			if (lua_istable(machine, -1) != LUA_TRUE)
-				throw std::runtime_error("Unexpected type where table expected");
+				throw std::runtime_error("Unexpected type (" + boost::lexical_cast<std::string>(lua::type(lua_type(machine, -1))) + ") where table expected");
 
 			lua_getfield(machine, -1, path[i].c_str());
 		}
@@ -53,5 +54,13 @@ namespace lua
 			return "";
 
 		return std::accumulate(path.begin() + 1, path.end(), *path.begin(), [](const std::string& path, const std::string& piece){return path + "." + piece; });
+	}
+
+	std::string entity::first_name() const
+	{
+		if (path.empty())
+			return "";
+
+		return path[0];
 	}
 }

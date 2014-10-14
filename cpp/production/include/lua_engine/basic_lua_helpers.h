@@ -84,8 +84,8 @@ namespace lua
             };
 		}
 
-		void get_or_create_global_table(lua_State* machine, const std::string& table_name);
-		void get_or_create_table_as_field(lua_State* machine, const std::string& table_name);
+		void acquire_table(lua_State* machine, const std::string& table_name);
+		void acquire_field(lua_State* machine, const std::string& table_name, lua::type expected_type);
 	}
 }
 

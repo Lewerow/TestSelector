@@ -20,18 +20,6 @@ namespace lua
 	public:
 		engine();
 
-        template <typename signature>
-        void load(const lua::cfunction<signature>& cfunc)
-		{
-			load(lua::make_variable(cfunc.name(), cfunc));
-        }
-
-		template <typename T>
-		void load(const variable<T>& var)
-		{
-			return var.insert_into(machine.get());
-		}
-
 		void load(const std::string& code);
 		void load(const lua::entity& entity);
 		void load_file(const boost::filesystem::path& filename);

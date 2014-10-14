@@ -275,6 +275,12 @@ BOOST_AUTO_TEST_CASE(table_variable_roudtrip_with_multiple_access)
 
 	auto yy = engine.get<std::string>("y.y.y.y");
 	BOOST_CHECK_EQUAL(yy, "a45");
+
+	engine.load(lua::make_variable<int>("x.y.z", 19));
+	BOOST_CHECK_EQUAL(lua::ltable, engine.typeof("x"));
+	BOOST_CHECK_EQUAL(lua::ltable, engine.typeof("x.y"));
+	BOOST_CHECK_EQUAL(lua::lnumber, engine.typeof("x.y.z"));
+	BOOST_CHECK_EQUAL(19, engine.get<int>("x.y.z"));
 }
 
 BOOST_AUTO_TEST_CASE(tables_can_be_created)
@@ -282,7 +288,40 @@ BOOST_AUTO_TEST_CASE(tables_can_be_created)
 	lua::table tab("x");
 	engine.load(tab);
 
-//#    BOOST_CHECK_EQUAL(lua::ltable, engine.typeof("x"));
+    BOOST_CHECK_EQUAL(lua::ltable, engine.typeof("x"));
+}
+
+BOOST_AUTO_TEST_CASE(multiple_values_can_be_inserted_to_table_independently)
+{
+	lua::table tab("x");
+	engine.load(tab);
+
+	lua::variable<int> a("x.a", 2);
+	engine.load(a);
+
+	lua::variable<std::string> b("x.b", "b");
+	engine.load(b);
+
+	BOOST_CHECK_EQUAL(lua::ltable, engine.typeof("x"));
+	BOOST_CHECK_EQUAL(lua::lnumber, engine.typeof("x.a"));
+	BOOST_CHECK_EQUAL(2, engine.get<int>("x.a"));
+	BOOST_CHECK_EQUAL(lua::lstring, engine.typeof("x.b"));
+	BOOST_CHECK_EQUAL("b", engine.get<std::string>("x.b"));
+}
+
+BOOST_AUTO_TEST_CASE(values_are_inserted_together_with_their_table)
+{
+	lua::table tab("x");
+	tab.add_field("a", 2);
+	tab.add_field("b", std::string("b"));
+
+	engine.load(tab);
+
+	BOOST_CHECK_EQUAL(lua::ltable, engine.typeof("x"));
+	BOOST_CHECK_EQUAL(lua::lnumber, engine.typeof("x.a"));
+	BOOST_CHECK_EQUAL(2, engine.get<int>("x.a"));
+	BOOST_CHECK_EQUAL(lua::lstring, engine.typeof("x.b"));
+	BOOST_CHECK_EQUAL("b", engine.get<std::string>("x.b"));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

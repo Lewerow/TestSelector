@@ -46,7 +46,9 @@ namespace lua
 
 	void engine::load(const lua::entity& entity)
 	{
+		helpers::scoped::no_stack_size_change_verifier verifier(machine.get());
 		entity.insert_into(machine.get());
+		lua_setglobal(machine.get(), entity.first_name().c_str());
 	}
 
 	void engine::load_file(const boost::filesystem::path& filename)

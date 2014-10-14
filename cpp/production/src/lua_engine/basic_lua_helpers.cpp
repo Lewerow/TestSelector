@@ -1,8 +1,12 @@
 #include <lua.hpp>
 
+#include <boost/lexical_cast.hpp>
+
 #include <ts_assert.h>
+
 #include <lua_engine/basic_lua_helpers.h>
 #include <lua_engine/type_specializations.h>
+#include <lua_engine/entity.h>
 
 namespace lua
 {
@@ -32,47 +36,76 @@ namespace lua
 
 		namespace
 		{
-			void lazy_table_initialization(lua_State* machine, const std::string& table_name, void (*initializer)(lua_State*, const std::string&))
+			void table_initialization(lua_State* machine)
 			{
-				if (!lua_istable(machine, -1))
+				lua_pop(machine, 1);
+				lua_newtable(machine);
+			}
+
+			int nop(lua_State*)
+			{
+				return 0;
+			}
+
+			void initialize_default(lua_State* machine, lua::type t)
+			{
+				switch (t)
 				{
-					if (lua_isnil(machine, -1))
-						initializer(machine, table_name);
-					else
-						throw std::runtime_error("Unexpected type where table or nil expected");
+				case lua::lboolean:
+					lua_pushboolean(machine, false);
+					break;
+				case lua::llightuserdata:
+					lua_pushlightuserdata(machine, nullptr);
+					break;
+				case lua::lfunction:
+					lua_pushcfunction(machine, nop);
+					break;
+				case lua::lnil:
+					lua_pushnil(machine);
+					break;
+				case lua::lnumber:
+					lua_pushnumber(machine, 0);
+					break;
+				case lua::lstring:
+					lua_pushstring(machine, "");
+					break;
+				case lua::ltable:
+					lua_newtable(machine);
+					break;
+				case lua::lthread:
+					lua_newthread(machine);
+					break;
 				}
 			}
 
-			void table_as_field_initialization(lua_State* machine, const std::string& table_name)
+			void lazy_initialize(lua_State* machine, const std::string& field_name, lua::type expected_type)
 			{
-				lua_pop(machine, 1);
-				push(machine, table_name);
-				lua_newtable(machine);
-				lua_settable(machine, -3);
-				lua_getfield(machine, -1, table_name.c_str());
-			}
-
-			void global_table_initialization(lua_State* machine, const std::string& table_name)
-			{
-				lua_pop(machine, 1);
-				lua_newtable(machine);
-				lua_setglobal(machine, table_name.c_str());
-				lua_getglobal(machine, table_name.c_str());
+				lua::type entity_type = lua::type(lua_type(machine, -1));
+				if (entity_type != expected_type)
+				{
+					if (entity_type == lua::lnil)
+					{
+						lua_pop(machine, 1);
+						initialize_default(machine, expected_type);
+					}
+					else
+						throw std::runtime_error("Unexpected type (" + boost::lexical_cast<std::string>(entity_type)+") where " + boost::lexical_cast<std::string>(expected_type)+" or nil expected");
+				}
 			}
 		}
 
-		void get_or_create_global_table(lua_State* machine, const std::string& table_name)
+		void acquire_table(lua_State* machine, const std::string& table_name)
 		{
 			scoped::exact_stack_size_change<1> stack_verifier(machine);
 			lua_getglobal(machine, table_name.c_str());
-			lazy_table_initialization(machine, table_name, global_table_initialization);
+			lazy_initialize(machine, table_name, lua::ltable);
 		}
 
-		void get_or_create_table_as_field(lua_State* machine, const std::string& table_name)
+		void acquire_field(lua_State* machine, const std::string& field_name, lua::type expected_type)
 		{
 			scoped::exact_stack_size_change<1> stack_verifier(machine);
-			lua_getfield(machine, -1, table_name.c_str());
-			lazy_table_initialization(machine, table_name, table_as_field_initialization);
+			lua_getfield(machine, -1, field_name.c_str());
+			lazy_initialize(machine, field_name, expected_type);
 		}
 	}
 }
