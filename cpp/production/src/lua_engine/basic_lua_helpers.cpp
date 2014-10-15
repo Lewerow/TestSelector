@@ -57,6 +57,9 @@ namespace lua
 				case lua::llightuserdata:
 					lua_pushlightuserdata(machine, nullptr);
 					break;
+				case lua::luserdata:
+					lua_pushlightuserdata(machine, nullptr);
+					break;
 				case lua::lfunction:
 					lua_pushcfunction(machine, nop);
 					break;

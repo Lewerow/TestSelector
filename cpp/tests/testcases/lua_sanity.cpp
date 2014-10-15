@@ -2,6 +2,7 @@
 
 #include <lua_engine/engine.h>
 #include <lua_engine/variable_operators.h>
+#include <lua_engine/common_class_loader.h>
 
 struct lua_fixture
 {
@@ -315,13 +316,36 @@ BOOST_AUTO_TEST_CASE(values_are_inserted_together_with_their_table)
 	tab.add_field("a", 2);
 	tab.add_field("b", std::string("b"));
 
+	auto v = lua::make_variable("x.v", 22);
+
 	engine.load(tab);
+	engine.load(v);
 
 	BOOST_CHECK_EQUAL(lua::ltable, engine.typeof("x"));
 	BOOST_CHECK_EQUAL(lua::lnumber, engine.typeof("x.a"));
 	BOOST_CHECK_EQUAL(2, engine.get<int>("x.a"));
 	BOOST_CHECK_EQUAL(lua::lstring, engine.typeof("x.b"));
 	BOOST_CHECK_EQUAL("b", engine.get<std::string>("x.b"));
+	BOOST_CHECK_EQUAL(22, engine.get<int>("x.v"));
+}
+
+BOOST_AUTO_TEST_CASE(last_inserted_table_stands)
+{
+	lua::table a("a");
+	a.add_field("a", 2);
+	a.add_field("b", 5);
+
+	lua::table b("a");
+	b.add_field("a", 10);
+	b.add_field("c", 100);
+
+	engine.load(a);
+	engine.load(b);
+
+	BOOST_CHECK_EQUAL(lua::ltable, engine.typeof("a"));
+	BOOST_CHECK_EQUAL(lua::lnil, engine.typeof("a.b"));
+	BOOST_CHECK_EQUAL(10, engine.get<int>("a.a"));
+	BOOST_CHECK_EQUAL(100, engine.get<int>("a.c"));
 }
 
 BOOST_AUTO_TEST_SUITE_END()
