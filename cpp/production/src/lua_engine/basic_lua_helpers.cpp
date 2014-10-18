@@ -81,7 +81,7 @@ namespace lua
 				}
 			}
 
-			void lazy_initialize(lua_State* machine, const std::string& field_name, lua::type expected_type)
+			void lazy_initialize(lua_State* machine, lua::type expected_type)
 			{
 				lua::type entity_type = lua::type(lua_type(machine, -1));
 				if (entity_type != expected_type)
@@ -97,18 +97,32 @@ namespace lua
 			}
 		}
 
+		std::string create_metatable(lua_State* machine, const std::string& varname)
+		{
+			std::string name_base = varname + "_metatable_";
+			int counter = 0;
+			std::string unique_name_proposition = name_base;
+			while (luaL_newmetatable(machine, unique_name_proposition.c_str()) == LUA_FALSE)
+			{
+				unique_name_proposition = name_base + boost::lexical_cast<std::string>(counter++);
+				lua_pop(machine, 1);
+			}
+
+			return unique_name_proposition;
+		}
+
 		void acquire_table(lua_State* machine, const std::string& table_name)
 		{
 			scoped::exact_stack_size_change<1> stack_verifier(machine);
 			lua_getglobal(machine, table_name.c_str());
-			lazy_initialize(machine, table_name, lua::ltable);
+			lazy_initialize(machine, lua::ltable);
 		}
 
 		void acquire_field(lua_State* machine, const std::string& field_name, lua::type expected_type)
 		{
 			scoped::exact_stack_size_change<1> stack_verifier(machine);
 			lua_getfield(machine, -1, field_name.c_str());
-			lazy_initialize(machine, field_name, expected_type);
+			lazy_initialize(machine, expected_type);
 		}
 	}
 }

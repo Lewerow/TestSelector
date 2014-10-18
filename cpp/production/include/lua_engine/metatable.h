@@ -5,7 +5,24 @@
 
 namespace lua
 {
-	typedef lua::table metatable;
+	class metatable : public lua::table
+	{
+	public:
+		metatable()
+		{}	    
+	};
+
+	template <typename T>
+	void initialize_metatable(lua::metatable&)
+	{}
+
+	template <typename T>
+	lua::metatable make_metatable()
+	{
+		lua::metatable tab;
+		lua::initialize_metatable<T>(tab);
+		return tab;
+	}
 }
 
 #endif

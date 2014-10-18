@@ -15,11 +15,12 @@
 #include <lua_engine/type_specializations.h>
 #include <lua_engine/basic_lua_helpers.h>
 #include <lua_engine/entity.h>
+#include <lua_engine/pushable.h>
 
 namespace lua
 {
 	template <typename T>
-	class variable : public lua::entity
+	class variable : public lua::entity, public lua::pushable
 	{
 	public:
 
@@ -62,7 +63,7 @@ namespace lua
 					helpers::acquire_field(machine, path[i], lua::ltable);
 			}
 
-			push(machine, value());
+			push(machine);
 
 			for (std::size_t i = path.size() - 1; i > 0; --i)
 				lua_setfield(machine, -2, path[i].c_str());
@@ -79,8 +80,13 @@ namespace lua
 
 		variable<T>& operator= (const variable<T>& rhs)
 		{
-			*this = variable<T>(rhs);
+			*this = std::move(variable<T>(rhs));
 			return *this;
+		}
+
+		void push(lua_State* machine) const
+		{
+			lua::push(machine, value());
 		}
 
 	private:
@@ -96,7 +102,7 @@ namespace lua
 	template <typename T>
 	void push(lua_State* machine, const lua::variable<T>& var)
 	{
-		push(machine, var.value());
+		var.push(machine);
 	}
 
 }

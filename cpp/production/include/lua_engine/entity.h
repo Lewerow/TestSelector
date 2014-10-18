@@ -13,9 +13,7 @@ namespace lua
 	public:
 		entity(const std::string& name);
 		virtual ~entity();
-
-		virtual void insert_into(lua_State* machine) const;
-
+		
 		std::string first_name() const;
 		std::string name() const;
 		lua::type type(lua_State* machine) const;

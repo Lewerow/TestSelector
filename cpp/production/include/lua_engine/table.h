@@ -4,26 +4,33 @@
 #include <lua_engine/variable.h>
 
 #include <memory>
-#include <vector>
+#include <map>
 
 namespace lua
 {
-	class table : public lua::variable<lua::table&>
+	class table : public lua::pushable
 	{
 	public:
-		table(const std::string& name) : lua::variable<lua::table&>(name, *this)
-		{}
+		table();
 
 		template <typename T>
 		void add_field(const std::string& name, T&& value)
 		{
-			fields.push_back(std::make_unique<lua::variable<T> >(name, value));
+			fields[name] = std::make_shared<lua::variable<T> >(name, value);
 		}
 
-		void push_fields(lua_State* machine) const;
+		void remove_field(const std::string& name);
+
+		std::size_t sequential_size() const;
+		std::size_t associative_size() const;
+		std::size_t total_size() const;
+
+		void push(lua_State* machine) const;
 
 	private:
-		std::vector<std::unique_ptr<lua::entity> > fields;
+		void push_fields(lua_State* machine) const;
+
+		std::map<std::string, std::shared_ptr<lua::pushable> > fields;
 	};
 }
 
@@ -50,8 +57,7 @@ namespace lua
 
 		static void push(lua_State* machine, const lua::table& t)
 		{
-			lua_newtable(machine);
-			t.push_fields(machine);
+			t.push(machine);
 		}
 	};
 }

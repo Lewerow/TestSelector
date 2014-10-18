@@ -32,9 +32,6 @@ namespace lua
 		fetch_on_stack(machine);
 		return lua::type(lua_type(machine, -1));
 	}
-
-	void entity::insert_into(lua_State* machine) const
-	{}
 		
 	void entity::fetch_on_stack(lua_State* machine) const
 	{

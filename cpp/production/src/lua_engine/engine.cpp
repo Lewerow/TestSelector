@@ -44,13 +44,6 @@ namespace lua
 		handle_lua_loading_error_code(machine.get(), luaL_dostring(machine.get(), code.c_str()));
 	}
 
-	void engine::load(const lua::entity& entity)
-	{
-		helpers::scoped::no_stack_size_change_verifier verifier(machine.get());
-		entity.insert_into(machine.get());
-		lua_setglobal(machine.get(), entity.first_name().c_str());
-	}
-
 	void engine::load_file(const boost::filesystem::path& filename)
 	{
 		handle_lua_loading_error_code(machine.get(), luaL_dofile(machine.get(), filename.string().c_str()));

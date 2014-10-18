@@ -2,7 +2,7 @@
 
 #include <lua_engine/engine.h>
 #include <lua_engine/variable_operators.h>
-#include <lua_engine/common_class_loader.h>
+#include <lua_engine/metatable.h>
 
 struct lua_fixture
 {
@@ -157,7 +157,7 @@ int helper_cfunction(void)
 
 BOOST_AUTO_TEST_CASE(cfunctions_can_be_called)
 {
-    auto f = lua::make_cfunction("f", helper_cfunction);
+    auto f = lua::make_cfunction_variable("f", helper_cfunction);
     engine.load(f);
     BOOST_CHECK_EQUAL(helper_cfunction(), engine.call<int>("f"));
 }
@@ -169,15 +169,15 @@ int helper_cfunction_with_args(int a, int b)
 
 BOOST_AUTO_TEST_CASE(cfunction_with_arguments_can_be_called)
 {
-    auto f = lua::make_cfunction("sum", helper_cfunction_with_args);
+    auto f = lua::make_cfunction_variable("sum", helper_cfunction_with_args);
     engine.load(f);
     BOOST_CHECK_EQUAL(helper_cfunction_with_args(2, 5), engine.call<int>("sum", 2, 5));
 }
 
 BOOST_AUTO_TEST_CASE(multiple_cfunctions_may_be_registered_with_same_name_last_one_stands)
 {
-    auto f = lua::make_cfunction("sum", helper_cfunction);
-    auto f2 = lua::make_cfunction("sum", helper_cfunction_with_args);
+    auto f = lua::make_cfunction_variable("sum", helper_cfunction);
+    auto f2 = lua::make_cfunction_variable("sum", helper_cfunction_with_args);
 
     engine.load(f);
     engine.load(f2);
@@ -189,7 +189,7 @@ BOOST_AUTO_TEST_CASE(member_functions_can_be_called_from_lua)
 {
     S s;
     s.c = 10;
-    auto f = lua::make_cfunction("f", &S::f);
+    auto f = lua::make_cfunction_variable("f", &S::f);
     s.c = 50;
     engine.load(f);
 	engine.load(lua::make_variable("s", &s));
@@ -205,7 +205,7 @@ BOOST_AUTO_TEST_CASE(member_functions_can_be_called_from_cpp)
 {
     S s;
     s.c = 10;
-    auto f = lua::make_cfunction("f", &S::f);
+    auto f = lua::make_cfunction_variable("f", &S::f);
     s.c = 50;
     engine.load(f);
     
@@ -218,7 +218,7 @@ BOOST_AUTO_TEST_CASE(member_functions_can_be_called_from_cpp)
 BOOST_AUTO_TEST_CASE(lambda_can_be_used_as_cfunction_but_require_explicit_template_parameters)
 {
 	auto g = [](int i) -> int{return 2 * i; };
-	auto f = lua::make_cfunction<int, int>("f", g);
+	auto f = lua::make_cfunction_variable<int, int>("f", g);
 	engine.load(f);
 
 	BOOST_CHECK_EQUAL(g(100), engine.call<int>("f", 100));
@@ -230,7 +230,7 @@ BOOST_AUTO_TEST_CASE(bound_functions_can_be_used_as_cfunctions_but_require_expli
 	S s;
 	s.c = 100;
 
-	auto f = lua::make_cfunction<int, int>("f", std::bind(&S::f, &s, std::placeholders::_1));
+	auto f = lua::make_cfunction_variable<int, int>("f", std::bind(&S::f, &s, std::placeholders::_1));
     engine.load(f);
     BOOST_CHECK_EQUAL(lua::luserdata, engine.typeof("f"));
 	BOOST_CHECK_EQUAL(s.f(100), engine.call<int>("f", 100));
@@ -286,16 +286,16 @@ BOOST_AUTO_TEST_CASE(table_variable_roudtrip_with_multiple_access)
 
 BOOST_AUTO_TEST_CASE(tables_can_be_created)
 {
-	lua::table tab("x");
-	engine.load(tab);
+	lua::table tab;
+	engine.load(lua::make_variable("x", tab));
 
     BOOST_CHECK_EQUAL(lua::ltable, engine.typeof("x"));
 }
 
 BOOST_AUTO_TEST_CASE(multiple_values_can_be_inserted_to_table_independently)
 {
-	lua::table tab("x");
-	engine.load(tab);
+	lua::table tab;
+	engine.load(lua::make_variable("x", tab));
 
 	lua::variable<int> a("x.a", 2);
 	engine.load(a);
@@ -312,13 +312,13 @@ BOOST_AUTO_TEST_CASE(multiple_values_can_be_inserted_to_table_independently)
 
 BOOST_AUTO_TEST_CASE(values_are_inserted_together_with_their_table)
 {
-	lua::table tab("x");
+	lua::table tab;
 	tab.add_field("a", 2);
 	tab.add_field("b", std::string("b"));
 
 	auto v = lua::make_variable("x.v", 22);
 
-	engine.load(tab);
+	engine.load(lua::make_variable("x", tab));
 	engine.load(v);
 
 	BOOST_CHECK_EQUAL(lua::ltable, engine.typeof("x"));
@@ -329,23 +329,51 @@ BOOST_AUTO_TEST_CASE(values_are_inserted_together_with_their_table)
 	BOOST_CHECK_EQUAL(22, engine.get<int>("x.v"));
 }
 
+BOOST_AUTO_TEST_CASE(table_fields_are_removable)
+{
+	lua::table tab;
+	tab.add_field("a", 2);
+	tab.add_field("b", std::string("b"));
+	tab.remove_field("b");
+
+	engine.load(lua::make_variable("x", tab));
+
+	BOOST_CHECK_EQUAL(lua::ltable, engine.typeof("x"));
+	BOOST_CHECK_EQUAL(lua::lnumber, engine.typeof("x.a"));
+	BOOST_CHECK_EQUAL(2, engine.get<int>("x.a"));
+	BOOST_CHECK_EQUAL(lua::lnil, engine.typeof("x.b"));
+}
+
 BOOST_AUTO_TEST_CASE(last_inserted_table_stands)
 {
-	lua::table a("a");
+	lua::table a;
 	a.add_field("a", 2);
 	a.add_field("b", 5);
 
-	lua::table b("a");
+	lua::table b;
 	b.add_field("a", 10);
 	b.add_field("c", 100);
 
-	engine.load(a);
-	engine.load(b);
+	engine.load(lua::make_variable("a", a));
+	engine.load(lua::make_variable("a", b));
 
 	BOOST_CHECK_EQUAL(lua::ltable, engine.typeof("a"));
 	BOOST_CHECK_EQUAL(lua::lnil, engine.typeof("a.b"));
 	BOOST_CHECK_EQUAL(10, engine.get<int>("a.a"));
 	BOOST_CHECK_EQUAL(100, engine.get<int>("a.c"));
+}
+
+BOOST_AUTO_TEST_CASE(default_metatable_is_empty)
+{
+	struct A
+	{};
+
+	lua::metatable a = lua::make_metatable<A>();
+	/*
+	engine.load(lua::make_variable("a", a));
+
+	BOOST_CHECK_EQUAL(lua::ltable, engine.typeof("a"));
+	BOOST_CHECK_EQUAL(0, engine.get<lua::table>("a").total_size());*/
 }
 
 BOOST_AUTO_TEST_SUITE_END()

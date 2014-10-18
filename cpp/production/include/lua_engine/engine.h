@@ -20,8 +20,15 @@ namespace lua
 	public:
 		engine();
 
+		template <typename T>
+		void load(const lua::variable<T>& var)
+		{
+			helpers::scoped::no_stack_size_change_verifier verifier(machine.get());
+			var.insert_into(machine.get());
+			lua_setglobal(machine.get(), var.first_name().c_str());
+		}
+
 		void load(const std::string& code);
-		void load(const lua::entity& entity);
 		void load_file(const boost::filesystem::path& filename);
 		
 		lua::type typeof(const std::string& varname);

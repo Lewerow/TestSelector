@@ -10,8 +10,7 @@
 #include <boost/lexical_cast.hpp>
 
 #include <lua_engine/basic_lua_helpers.h>
-#include <lua_engine/variable.h>
-#include <lua_engine/entity.h>
+#include <lua_engine/pushable.h>
 #include <lua_engine/type_specializations.h>
 
 struct lua_State;
@@ -26,13 +25,12 @@ namespace lua
     }
 
     template <typename signature>
-	class cfunction : public lua::variable<lua::cfunction<signature>&>
+	class cfunction : public lua::pushable
     {
 		typedef cfunction<signature> this_type;
 		typedef typename std::function<signature>::result_type result_type;
-        typedef lua::variable<lua::cfunction<signature>&> variable_parent;
     public:
-		cfunction(const std::string& name, std::function<signature>&& f_) : variable_parent(name, *this), f(f_)
+		cfunction(std::function<signature>&& f_) : f(f_)
         {}
 
 		static int finalizer(lua_State* machine)
@@ -46,7 +44,9 @@ namespace lua
 		static int caller(lua_State* machine)
 		{
 			this_type* f = reinterpret_cast<this_type*>(lua_touserdata(machine, lua_upvalueindex(1)));
-			push(machine, autocall(machine, f->functor()));
+			auto result = autocall(machine, f->functor());
+			lua::push(machine, result);
+
 			return lua::result_count<result_type>::value;
 		}
 
@@ -54,26 +54,65 @@ namespace lua
 		{
 			return f;
 		}
+
+		void push(lua_State* machine) const
+		{
+			void* address = lua_newuserdata(machine, sizeof(*this));
+			new (address)lua::cfunction<signature>(*this);
+
+			lua::helpers::create_metatable(machine, "cfunction");
+
+			lua_pushstring(machine, "__gc");
+			lua_pushlightuserdata(machine, address);
+			lua_pushcclosure(machine, (&lua::cfunction<signature>::finalizer), 1);
+			lua_settable(machine, -3);
+
+			lua_pushstring(machine, "__call");
+			lua_pushlightuserdata(machine, address);
+			lua_pushcclosure(machine, (&lua::cfunction<signature>::caller), 1);
+			lua_settable(machine, -3);
+
+			lua_setmetatable(machine, -2);
+		}
+
 	private:
 		std::function<signature> f;
     };
-	
-    template <typename result_type, typename... arg_types>
-	lua::cfunction<result_type(arg_types...)> make_cfunction(const std::string& name, result_type (*f)(arg_types...))
-    {
-		 return lua::cfunction<result_type(arg_types...)>(name, f);
-    }
 
-    template <typename result_type, typename class_type, typename... arg_types>
-    lua::cfunction<result_type(class_type*, arg_types...) > make_cfunction(const std::string& name, result_type (class_type::* f)(arg_types...))
-    {
-        return lua::cfunction<result_type(class_type*, arg_types...)>(name, std::mem_fn(f));
-    }
+	template <typename result_type, typename... arg_types>
+	lua::cfunction<result_type(arg_types...)> make_cfunction(result_type(*f)(arg_types...))
+	{
+		return lua::cfunction<result_type(arg_types...)>(f);
+	}
+
+	template <typename result_type, typename class_type, typename... arg_types>
+	lua::cfunction<result_type(class_type*, arg_types...) > make_cfunction(result_type(class_type::* f)(arg_types...))
+	{
+		return lua::cfunction<result_type(class_type*, arg_types...)>(std::mem_fn(f));
+	}
 
 	template <typename result_type, typename... arg_types, typename functor_type>
-	lua::cfunction<result_type(arg_types...)> make_cfunction(const std::string& name, functor_type&& f)
+	lua::cfunction<result_type(arg_types...)> make_cfunction(functor_type&& f)
 	{
-		return lua::cfunction<result_type(arg_types...)>(name, std::function<result_type(arg_types...)>(std::forward<functor_type>(f)));
+		return lua::cfunction<result_type(arg_types...)>(std::function<result_type(arg_types...)>(std::forward<functor_type>(f)));
+	}
+
+	template <typename result_type, typename... arg_types>
+	lua::variable<lua::cfunction<result_type(arg_types...)> > make_cfunction_variable(const std::string& name, result_type(*f)(arg_types...))
+	{
+		return lua::make_variable(name, lua::make_cfunction(f));
+	}
+
+	template <typename result_type, typename class_type, typename... arg_types>
+	lua::variable<lua::cfunction<result_type(class_type*, arg_types...) > > make_cfunction_variable(const std::string& name, result_type(class_type::* f)(arg_types...))
+	{
+		return lua::make_variable(name, lua::make_cfunction(f));
+	}
+
+	template <typename result_type, typename... arg_types, typename functor_type>
+	lua::variable<lua::cfunction<result_type(arg_types...)> > make_cfunction_variable(const std::string& name, functor_type&& f)
+	{
+		return lua::make_variable(name, lua::make_cfunction<result_type, arg_types...>(std::forward<functor_type>(f)));
 	}
 }
 
@@ -96,38 +135,9 @@ namespace lua
 			return f;
 		}
 
-        static std::string make_metatable(lua_State* machine, const std::string& varname)
-        {
-            std::string name_base = varname + "_metatable_";          
-            int counter = 0;
-            std::string unique_name_proposition = name_base;
-            while(luaL_newmetatable(machine, unique_name_proposition.c_str()) == LUA_FALSE)
-            {
-                unique_name_proposition = name_base + boost::lexical_cast<std::string>(counter++);
-                lua_pop(machine, 1);            
-            }
-
-            return unique_name_proposition;
-        }
-
 		static void push(lua_State* machine, const lua::cfunction<signature>& value)
 		{
-			void* address = lua_newuserdata(machine, sizeof(value));
-			new (address)lua::cfunction<signature>(value);
-	        
-            make_metatable(machine, value.name());	
-			
-			lua_pushstring(machine, "__gc");
-			lua_pushlightuserdata(machine, address);
-			lua_pushcclosure(machine, (&lua::cfunction<signature>::finalizer), 1);
-			lua_settable(machine, -3);
-
-			lua_pushstring(machine, "__call");
-            lua_pushlightuserdata(machine, address);
-			lua_pushcclosure(machine, (&lua::cfunction<signature>::caller), 1);
-			lua_settable(machine, -3);
-
-			lua_setmetatable(machine, -2);
+			value.push(machine);
 		}
 	};
 }
