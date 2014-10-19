@@ -85,7 +85,8 @@ namespace lua
             };
 		}
 
-		std::string create_metatable(lua_State* machine, const std::string& varname);
+	    lua::reference_type preserve_entity(lua_State* machine, int preserving_table_index);
+	std::string create_metatable(lua_State* machine, const std::string& varname);
 		void acquire_table(lua_State* machine, const std::string& table_name);
 		void acquire_field(lua_State* machine, const std::string& table_name, lua::type expected_type);
 	}

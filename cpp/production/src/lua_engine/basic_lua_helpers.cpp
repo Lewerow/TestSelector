@@ -97,6 +97,15 @@ namespace lua
 			}
 		}
 
+        lua::reference_type preserve_entity(lua_State* machine, int preserving_table)
+        {
+            lua_newtable(machine);
+            lua::reference_type ref = luaL_ref(machine, preserving_table - 1);
+            lua_rawseti(machine, preserving_table, ref);
+
+            return ref;
+        }
+
 		std::string create_metatable(lua_State* machine, const std::string& varname)
 		{
 			int counter = 0;

@@ -57,7 +57,8 @@ namespace lua
 			lua::helpers::acquire_table(machine, lua::configuration::proxy_register_name);
 			lua_insert(machine, lua_gettop(machine) - 1);
 			lua::type type = lua::type(lua_type(machine, -1));
-			return lua::variable_proxy(machine, type, luaL_ref(machine, -2));
+            lua::reference_type ref = helpers::preserve_entity(machine, -2);
+			return lua::variable_proxy(machine, type, ref);
 		}
 
 		static void push(lua_State* machine, const lua::variable_proxy& v)

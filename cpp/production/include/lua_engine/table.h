@@ -24,14 +24,13 @@ namespace lua
 		}
 
 		void remove_field(const std::string& name);
+        
 
 		std::size_t sequential_size() const;
 		std::size_t associative_size() const;
 		std::size_t total_size() const;
 
 		void push(lua_State* machine) const;
-
-
 
 	private:
 		void push_fields(lua_State* machine) const;
