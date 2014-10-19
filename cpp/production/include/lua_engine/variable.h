@@ -44,7 +44,7 @@ namespace lua
 			else
 			{
 				helpers::scoped::pop_n popper(machine, 1);
-				std::string error_text = "Requested variable (" + name() + ") with wrong type. Lua type: " + boost::lexical_cast<std::string>(lua::type(lua_type(machine, -1)));
+				std::string error_text = "Requested variable (" + name() + ") with wrong type. Lua type: " + luaL_typename(machine, -1);
 				throw std::runtime_error(error_text);
 			}
 
