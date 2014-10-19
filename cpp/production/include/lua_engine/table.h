@@ -1,10 +1,14 @@
 #ifndef TABLE_dmwoqidm98fj948w3j5ungjfdnkvncmowecksmclksmdckwemofcugvbtrbh45gu8943rf329ir0932ir3r
 #define TABLE_dmwoqidm98fj948w3j5ungjfdnkvncmowecksmclksmdckwemofcugvbtrbh45gu8943rf329ir0932ir3r
 
-#include <lua_engine/variable.h>
+#include <lua_engine/variable_proxy.h>
+#include <lua_engine/configuration.h>
 
 #include <memory>
 #include <map>
+#include <string>
+
+#include <boost/lexical_cast.hpp>
 
 namespace lua
 {
@@ -27,6 +31,8 @@ namespace lua
 
 		void push(lua_State* machine) const;
 
+
+
 	private:
 		void push_fields(lua_State* machine) const;
 
@@ -41,18 +47,29 @@ namespace lua
 	{
 		static bool type_matches(lua_State* machine, int position)
 		{
-			return lua_isuserdata(machine, position) == LUA_TRUE || lua_islightuserdata(machine, position) == LUA_TRUE;
+			return lua_istable(machine, position) == LUA_TRUE;
 		}
 
 		static lua::table pop(lua_State* machine)
 		{
-//			T* result = reinterpret_cast<T*>(lua_touserdata(machine, -1));
+			lua::helpers::scoped::exact_stack_size_change<-1> verifier(machine);
+
+			lua::table tab;
+			lua_pushnil(machine);
+			while (lua_next(machine, -2) != LUA_FALSE)
+			{
+				std::string table_index;
+				if (lua_isstring(machine, -2))
+					table_index = lua_tostring(machine, -2);
+				else
+					table_index = boost::lexical_cast<std::string>(lua_tointeger(machine, -2));
+
+				tab.add_field(table_index, lua_stack_helper<lua::variable_proxy>::pop(machine));
+			}
 
 			lua_pop(machine, 1);
-//			if (result == NULL)
-				throw std::bad_cast();
 
-//			return result;
+			return tab;
 		}
 
 		static void push(lua_State* machine, const lua::table& t)

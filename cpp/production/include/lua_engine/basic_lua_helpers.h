@@ -37,6 +37,7 @@ namespace lua
 	};
 
 	typedef int status_code_wrapper; // required for compiling cfunctions
+	typedef int reference_type;
 
 	namespace helpers
 	{

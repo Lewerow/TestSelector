@@ -14,7 +14,6 @@ namespace
 		boost::split(path, new_name, [](char c){return (c == '.'); });
 		return path;
 	}
-
 }
 
 namespace lua

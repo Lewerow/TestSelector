@@ -363,6 +363,35 @@ BOOST_AUTO_TEST_CASE(last_inserted_table_stands)
 	BOOST_CHECK_EQUAL(100, engine.get<int>("a.c"));
 }
 
+BOOST_AUTO_TEST_CASE(popped_table_has_proper_number_of_elements)
+{
+	lua::table a;
+	a.add_field("a", 2);
+
+	engine.load(lua::make_variable("a", a));
+	BOOST_CHECK_EQUAL(lua::ltable, engine.typeof("a"));
+	BOOST_CHECK_EQUAL(lua::lnil, engine.typeof("a.b"));
+	BOOST_CHECK_EQUAL(2, engine.get<int>("a.a"));
+	BOOST_CHECK_EQUAL(std::size_t(1), engine.get<lua::table>("a").total_size());
+}
+
+BOOST_AUTO_TEST_CASE(table_roundtrip_is_possible)
+{
+	lua::table a;
+	a.add_field("a", 2);
+	a.add_field("b", std::string("b"));
+
+	engine.load(lua::make_variable("a", a));
+	BOOST_CHECK_EQUAL(lua::ltable, engine.typeof("a"));
+	BOOST_CHECK_EQUAL(lua::lstring, engine.typeof("a.b"));
+	BOOST_CHECK_EQUAL(lua::lnumber, engine.typeof("a.a"));
+
+	engine.load(lua::make_variable("a", engine.get<lua::table>("a")));
+	BOOST_CHECK_EQUAL(lua::ltable, engine.typeof("a"));
+	BOOST_CHECK_EQUAL(lua::lstring, engine.typeof("a.b"));
+	BOOST_CHECK_EQUAL(lua::lnumber, engine.typeof("a.a"));
+}
+
 BOOST_AUTO_TEST_CASE(default_metatable_is_empty)
 {
 	struct A

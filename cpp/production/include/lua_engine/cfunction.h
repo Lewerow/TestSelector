@@ -9,6 +9,7 @@
 #include <boost/function_types/parameter_types.hpp>
 #include <boost/lexical_cast.hpp>
 
+#include <lua_engine/configuration.h>
 #include <lua_engine/basic_lua_helpers.h>
 #include <lua_engine/pushable.h>
 #include <lua_engine/type_specializations.h>
@@ -60,14 +61,14 @@ namespace lua
 			void* address = lua_newuserdata(machine, sizeof(*this));
 			new (address)lua::cfunction<signature>(*this);
 
-			lua::helpers::create_metatable(machine, "cfunction");
+			lua::helpers::create_metatable(machine, lua::configuration::cfunction_metatable_name_base);
 
-			lua_pushstring(machine, "__gc");
+			lua_pushstring(machine, lua::metamethods::at_garbage_collection);
 			lua_pushlightuserdata(machine, address);
 			lua_pushcclosure(machine, (&lua::cfunction<signature>::finalizer), 1);
 			lua_settable(machine, -3);
 
-			lua_pushstring(machine, "__call");
+			lua_pushstring(machine, lua::metamethods::at_call);
 			lua_pushlightuserdata(machine, address);
 			lua_pushcclosure(machine, (&lua::cfunction<signature>::caller), 1);
 			lua_settable(machine, -3);

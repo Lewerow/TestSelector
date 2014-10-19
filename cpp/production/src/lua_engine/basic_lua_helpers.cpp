@@ -92,19 +92,18 @@ namespace lua
 						initialize_default(machine, expected_type);
 					}
 					else
-						throw std::runtime_error("Unexpected type (" + boost::lexical_cast<std::string>(entity_type)+") where " + boost::lexical_cast<std::string>(expected_type)+" or nil expected");
+						throw std::runtime_error(std::string("Unexpected type (") + lua_typename(machine, entity_type) + ") where " + lua_typename(machine, expected_type) + " or nil expected");
 				}
 			}
 		}
 
 		std::string create_metatable(lua_State* machine, const std::string& varname)
 		{
-			std::string name_base = varname + "_metatable_";
 			int counter = 0;
-			std::string unique_name_proposition = name_base;
+			std::string unique_name_proposition = varname;
 			while (luaL_newmetatable(machine, unique_name_proposition.c_str()) == LUA_FALSE)
 			{
-				unique_name_proposition = name_base + boost::lexical_cast<std::string>(counter++);
+				unique_name_proposition = varname + boost::lexical_cast<std::string>(counter++);
 				lua_pop(machine, 1);
 			}
 
